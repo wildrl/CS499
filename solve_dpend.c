@@ -162,7 +162,6 @@ void runge_kutta(tyme_t t, y_t *yin, y_t *yout, tyme_t h)
 {
   /* fourth order Runge-Kutta - see e.g. Numerical Recipes */
  
-  int i;
   y_t dydx, dydxt, yt, k1, k2, k3, k4; 
   
   derivs(yin, &dydx); /* first step */

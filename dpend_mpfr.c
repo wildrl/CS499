@@ -62,20 +62,19 @@ void derivs(y_t *yin, y_t *dydx);
 
 int main(int argc, char *argv[])
 {
-  float in_TMIN, in_TMAX, in_TH10, in_W10, in_TH20, in_W20;
-  unsigned int i = 0, in_NSTEP, NSTEP;
+  unsigned int i = 0, NSTEP;
 
   seconds_t h, TMIN, TMAX;
-  mpfr_inits2(200, h, TMIN, TMAX);
+  mpfr_inits2(200, h, TMIN, TMAX, NULL);
 
   angle_t TH10, TH20;
-  mpfr_inits2(200, TH10, TH20);
+  mpfr_inits2(200, TH10, TH20, NULL);
 
   velocity_t W10, W20;
-  mpfr_inits2(200, W10, W20);
+  mpfr_inits2(200, W10, W20, NULL);
 
   y_t yin, yout;
-  mpfr_inits2(200, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2);
+  mpfr_inits2(200, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
 
   seconds_t *t;
   angle_t *th1, *th2;
@@ -83,12 +82,12 @@ int main(int argc, char *argv[])
 
   /* obtain command line values */
 
-  mpfr_set(TMIN, atof(argv[1]), MPFR_RNDN);
-  mpfr_set(TMAX, atof(argv[2]), MPFR_RNDN);
-  mpfr_set(TH10, atof(argv[3]), MPFR_RNDN);
-  mpfr_set(W10, atof(argv[4]), MPFR_RNDN);
-  mpfr_set(TH20, atof(argv[5]), MPFR_RNDN);
-  mpfr_set(W20, atof(argv[6]), MPFR_RNDN);
+  mpfr_set_flt(TMIN, atof(argv[1]), MPFR_RNDN);
+  mpfr_set_flt(TMAX, atof(argv[2]), MPFR_RNDN);
+  mpfr_set_flt(TH10, atof(argv[3]), MPFR_RNDN);
+  mpfr_set_flt(W10, atof(argv[4]), MPFR_RNDN);
+  mpfr_set_flt(TH20, atof(argv[5]), MPFR_RNDN);
+  mpfr_set_flt(W20, atof(argv[6]), MPFR_RNDN);
 
   NSTEP = atoi(argv[7]);
 
@@ -118,6 +117,7 @@ int main(int argc, char *argv[])
     // CALC t: t[i] = TMIN + h*i;
     mpfr_set(h_temp, h, MPFR_RNDN);             // h_temp = h
     mpfr_mul_ui(h_temp, h_temp, i, MPFR_RNDN);  // h_temp *= i
+    mpfr_init2(t[i], 200);
     mpfr_set(t[i], TMIN, MPFR_RNDN);            // t = TMIN
     mpfr_add(t[i], t[i], h_temp, MPFR_RNDN);          // t += h_temp
   }
@@ -127,9 +127,13 @@ int main(int argc, char *argv[])
   // CALC radian_conv: PI/180
   mpfr_t radian_conv;
   mpfr_init2(radian_conv, 200);
-  mpfr_set(radian_conv, 180, MPFR_RNDN);
-  mpfr_mul(radian_conv, radian_conv, mpfr_const_pi, MPFR_RNDN);
+  mpfr_set_si(radian_conv, 180, MPFR_RNDN);
+  mpfr_t pi;
+  mpfr_init2(pi, 200);
+  mpfr_const_pi(pi, MPFR_RNDN);
+  mpfr_mul(radian_conv, radian_conv, pi, MPFR_RNDN);
 
+  mpfr_inits2(200, th1[0], w1[0], th2[0], w2[0], NULL);
   mpfr_set(th1[0], TH10, MPFR_RNDN);  // th1[0] = TH10*PI/180.0;
   mpfr_set(w1[0], W10, MPFR_RNDN);    // w1[0] = W10*PI/180.0;
   mpfr_set(th2[0], TH20, MPFR_RNDN);  // th2[0] = TH20*PI/180.0;
@@ -152,6 +156,7 @@ int main(int argc, char *argv[])
 
     runge_kutta(t[i], &yin, &yout, h);
 
+    mpfr_inits2(200, th1[i+1], w1[i+1], th2[i+1], w2[i+1], NULL);
     mpfr_set(th1[i+1], yout.th1, MPFR_RNDN); // th1[i+1] = yout.th1;
     mpfr_set(w1[i+1], yout.w1, MPFR_RNDN);   // w1[i+1] = yout.w1;
     mpfr_set(th2[i+1], yout.th2, MPFR_RNDN); // th2[i+1] = yout.th2;
@@ -178,11 +183,11 @@ void derivs(y_t *yin, y_t *dydx)
 
   // CALC: const_mass_sum = M1 + M2
   mpfr_init2(const_mass_sum, 200);
-  mpfr_set(const_mass_sum, M1, MPFR_RNDN);
-  mpfr_add(const_mass_sum, const_mass_sum, M2, MPFR_RNDN);
+  mpfr_set_d(const_mass_sum, M1, MPFR_RNDN);
+  mpfr_add_d(const_mass_sum, const_mass_sum, M2, MPFR_RNDN);
 
   // INIT angle_t variables
-  mpfr_inits2(200, del, cos_del, sin_del, sin_cos_del, sin_th1, sin_th2);
+  mpfr_inits2(200, del, cos_del, sin_del, sin_cos_del, sin_th1, sin_th2, NULL);
 
   // CALC: del = yin->th2 - yin->th1;
   mpfr_sub(del, yin->th2, yin->th1, MPFR_RNDN);
@@ -194,61 +199,61 @@ void derivs(y_t *yin, y_t *dydx)
   mpfr_sin(sin_th2, yin->th2, MPFR_RNDN);             // sin(th_2)
 
   // INIT velocity_t variables
-  mpfr_inits2(200, w1_sqr, w2_sqr);
+  mpfr_inits2(200, w1_sqr, w2_sqr, NULL);
 
   // CALC: velocity_t variables;
   mpfr_sqr(w1_sqr, yin->w1, MPFR_RNDN);   // w1^2
   mpfr_sqr(w2_sqr, yin->w2, MPFR_RNDN);   // w2^2
   
   // INIT numerators, denomenators, and temps
-  mpfr_inits2(200, num1, den1, num2, den2, temp1, temp2);
+  mpfr_inits2(200, num1, den1, num2, den2, temp1, temp2, NULL);
 
   // SET: dydx->th1 = yin->w1;
-  set(dydx->th1, yin->w1, MPFR_RNDN); 
+  mpfr_set(dydx->th1, yin->w1, MPFR_RNDN);
 
   // CALC: den1 = (M1+M2)*L1 - M2*L1*cos(del)*cos(del);
-  mpfr_mul(den1, const_mass_sum, L1, MPFR_RNDN);
-  mpfr_set(temp1, M2, MPFR_RNDN);
-  mpfr_mul(temp1, temp1, L1, MPFR_RNDN);
+  mpfr_mul_d(den1, const_mass_sum, L1, MPFR_RNDN);
+  mpfr_set_d(temp1, M2, MPFR_RNDN);
+  mpfr_mul_d(temp1, temp1, L1, MPFR_RNDN);
   mpfr_mul(temp1, temp1, cos_del, MPFR_RNDN);
   mpfr_mul(temp1, temp1, cos_del, MPFR_RNDN);
   mpfr_sub(den1, den1, temp1, MPFR_RNDN);
 
   // CALC num1 = M2(L1*w1_sqr*sin_cos_del + G*sin_th2*cos_del + L2*w2_sqr*sin_del) 
   //            - (cons_mass_sum)*G*sin_th1
-  mpfr_mul(num1, L1, w1_sqr, MPFR_RNDN);
+  mpfr_mul_d(num1, w1_sqr, L1, MPFR_RNDN);
   mpfr_mul(num1, num1, sin_cos_del, MPFR_RNDN); // num1 = L1*w1_sqr*sin_cos_del
-  mpfr_mul(temp1, G, sin_th2, MPFR_RNDN);
+  mpfr_mul_d(temp1, sin_th2, G, MPFR_RNDN);
   mpfr_mul(temp1, temp1, cos_del, MPFR_RNDN);   // temp1 = G*sin_th2*cos_del 
-  mpfr_mul(temp2, L2, w2_sqr, MPFR_RNDN);
+  mpfr_mul_d(temp2, w2_sqr, L2, MPFR_RNDN);
   mpfr_mul(temp2, temp2, sin_del, MPFR_RNDN);   // temp2 = L2*w2_sqr*sin_del
   mpfr_add(num1, num1, temp1, MPFR_RNDN);
   mpfr_add(num1, num1, temp2, MPFR_RNDN);
-  mpfr_mul(num1, num1, M2, MPFR_RNDN);          // num1 = M2(num1 + temp1 + temp2)
-  mpfr_mul(temp1, const_mass_sum, G, MPFR_RNDN);
+  mpfr_mul_d(num1, num1, M2, MPFR_RNDN);          // num1 = M2(num1 + temp1 + temp2)
+  mpfr_mul_d(temp1, const_mass_sum, G, MPFR_RNDN);
   mpfr_mul(temp1, temp1, sin_th1, MPFR_RNDN);   // temp1 = (cons_mass_sum)*G*sin_th1)
   mpfr_sub(num1, num1, temp1, MPFR_RNDN); // num1 = num1 - temp1
 
   mpfr_div(dydx->w1, num1, den1, MPFR_RNDN);  // dydx->w1 = num1/den1
 
   // SET: dydx->th2 = yin->w2;
-  set(dydx->th2, yin->w2, MPFR_RNDN); 
+  mpfr_set(dydx->th2, yin->w2, MPFR_RNDN); 
 
   // CALC: den2 = (L2/L1)*den1;
-  mpfr_div(den2, L2, L1, MPFR_RNDN);
+  mpfr_set_d(den2, L2/L1, MPFR_RNDN);
   mpfr_mul(den2, den2, den1, MPFR_RNDN);
 
   // CALC: num2 = (M1+M2) (G*sin_th1*cos_del - L1*w1_sqr*sin_del - G*sin_th2)
   //            - M2*L2*w2_sqr*sin_cos_del
-  mpfr_mul(num2, G, sin_th1, MPFR_RNDN);
+  mpfr_mul_d(num2, sin_th1, G, MPFR_RNDN);
   mpfr_mul(num2, num2, cos_del, MPFR_RNDN);   // num2 = G*sin_th1*cos_del
-  mpfr_mul(temp1, L1, w1_sqr, MPFR_RNDN);
+  mpfr_mul_d(temp1, w1_sqr, L1, MPFR_RNDN);
   mpfr_mul(temp1, temp1, sin_del, MPFR_RNDN); // temp1 = L1*w1_sqr*sin_del 
-  mpfr_mul(temp2, G, sin_th2, MPFR_RNDN);     // temp2 = G*sin_th2
+  mpfr_mul_d(temp2, sin_th2, G, MPFR_RNDN);     // temp2 = G*sin_th2
   mpfr_sub(num2, num2, temp1, MPFR_RNDN);
   mpfr_sub(num2, num2, temp2, MPFR_RNDN);
   mpfr_mul(num2, num2, const_mass_sum, MPFR_RNDN);  // num2 = (M1+M2)(num2 - temp1 - temp2)
-  mpfr_mul(temp1, M2, L2, MPFR_RNDN);
+  mpfr_set_d(temp1, M2 * L2, MPFR_RNDN);
   mpfr_mul(temp1, temp1, w2_sqr, MPFR_RNDN);
   mpfr_mul(temp1, temp1, sin_cos_del, MPFR_RNDN);   // temp1 = M2*L2*w2_sqr*sin_cos_del
   mpfr_sub(num2, num2, temp1, MPFR_RNDN);
@@ -268,18 +273,18 @@ void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h)
   mpfr_t temp1;
   mpfr_t THREE, SIX, ONE_HALF;
 
-  mpfr_inits2(200, THREE, SIX, ONE_HALF);
-  mpfr_set(THREE, 3.0, MPFR_RNDN);
-  mpfr_set(SIX, 6.0, MPFR_RNDN);
-  mpfr_set(ONE_HALF, 0.5, MPFR_RNDN);
+  mpfr_inits2(200, THREE, SIX, ONE_HALF, NULL);
+  mpfr_set_d(THREE, 3.0, MPFR_RNDN);
+  mpfr_set_d(SIX, 6.0, MPFR_RNDN);
+  mpfr_set_d(ONE_HALF, 0.5, MPFR_RNDN);
   
   // INIT y_t struct contents
-  mpfr_inits2(200, dydx.th1, dydx.w2, dydx.th2, dydx.w2);
-  mpfr_inits2(200, dydxt.th1, dydxt.w2, dydxt.th2, dydxt.w2);
-  mpfr_inits2(200, yt.th1, yt.w2, yt.th2, yt.w2);
-  mpfr_inits2(200, k1.th1, k1.w2, k1.th2, k1.w2);
-  mpfr_inits2(200, k2.th1, k2.w2, k2.th2, k2.w2);
-  mpfr_inits2(200, k3.th1, k3.w2, k3.th2, k3.w2);
+  mpfr_inits2(200, dydx.th1, dydx.w2, dydx.th2, dydx.w2, NULL);
+  mpfr_inits2(200, dydxt.th1, dydxt.w2, dydxt.th2, dydxt.w2, NULL);
+  mpfr_inits2(200, yt.th1, yt.w2, yt.th2, yt.w2, NULL);
+  mpfr_inits2(200, k1.th1, k1.w2, k1.th2, k1.w2, NULL);
+  mpfr_inits2(200, k2.th1, k2.w2, k2.th2, k2.w2, NULL);
+  mpfr_inits2(200, k3.th1, k3.w2, k3.th2, k3.w2, NULL);
 
   // INIT temps
   mpfr_init2(temp1, 200);

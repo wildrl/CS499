@@ -255,12 +255,13 @@ void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h)
   mpfr_set_d(ONE_HALF, 0.5, MPFR_RNDN);
   
   // INIT y_t struct contents
-  mpfr_inits2(200, dydx.th1, dydx.w2, dydx.th2, dydx.w2, NULL);
-  mpfr_inits2(200, dydxt.th1, dydxt.w2, dydxt.th2, dydxt.w2, NULL);
-  mpfr_inits2(200, yt.th1, yt.w2, yt.th2, yt.w2, NULL);
-  mpfr_inits2(200, k1.th1, k1.w2, k1.th2, k1.w2, NULL);
-  mpfr_inits2(200, k2.th1, k2.w2, k2.th2, k2.w2, NULL);
-  mpfr_inits2(200, k3.th1, k3.w2, k3.th2, k3.w2, NULL);
+  mpfr_inits2(200, dydx.th1, dydx.w1, dydx.th2, dydx.w2, NULL);
+  mpfr_inits2(200, dydxt.th1, dydxt.w1, dydxt.th2, dydxt.w2, NULL);
+  mpfr_inits2(200, yt.th1, yt.w1, yt.th2, yt.w2, NULL);
+  mpfr_inits2(200, k1.th1, k1.w1, k1.th2, k1.w2, NULL);
+  mpfr_inits2(200, k2.th1, k2.w1, k2.th2, k2.w2, NULL);
+  mpfr_inits2(200, k3.th1, k3.w1, k3.th2, k3.w2, NULL);
+  mpfr_inits2(200, k4.th1, k4.w1, k4.th2, k4.w2, NULL);
 
   // INIT temps
   mpfr_init2(temp1, 200);

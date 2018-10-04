@@ -1,4 +1,5 @@
-/* solve_dpend.c
+/* 
+ * dpend_mpfr.c
  *
  * Example code to solve double pendulum ODEs using fourth order 
  * Runge-Kutta. 
@@ -64,8 +65,8 @@ int main(int argc, char *argv[])
 {
   unsigned int i = 0, NSTEP;
 
-  seconds_t h, TMIN, TMAX;
-  mpfr_inits2(200, h, TMIN, TMAX, NULL);
+  seconds_t h, TMIN, TMAX, t_curr, t_next;
+  mpfr_inits2(200, h, TMIN, TMAX, t_curr, t_next, NULL);
 
   angle_t TH10, TH20;
   mpfr_inits2(200, TH10, TH20, NULL);
@@ -76,101 +77,72 @@ int main(int argc, char *argv[])
   y_t yin, yout;
   mpfr_inits2(200, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
 
-  seconds_t *t;
-  angle_t *th1, *th2;
-  velocity_t *w1, *w2;
-
   /* obtain command line values */
-
   mpfr_set_flt(TMIN, atof(argv[1]), MPFR_RNDN);
   mpfr_set_flt(TMAX, atof(argv[2]), MPFR_RNDN);
   mpfr_set_flt(TH10, atof(argv[3]), MPFR_RNDN);
   mpfr_set_flt(W10, atof(argv[4]), MPFR_RNDN);
   mpfr_set_flt(TH20, atof(argv[5]), MPFR_RNDN);
   mpfr_set_flt(W20, atof(argv[6]), MPFR_RNDN);
-
   NSTEP = atoi(argv[7]);
 
-  /* allocate memory for arrays of values of time, angles 1 and 2,
-     and angular velocities 1 and 2 respectively */ 
-
-  t = (seconds_t *) malloc(NSTEP*sizeof(seconds_t)); 
-  th1 = (angle_t *) malloc(NSTEP*sizeof(angle_t)); 
-  w1 = (velocity_t *) malloc(NSTEP*sizeof(velocity_t));
-  th2 = (angle_t *) malloc(NSTEP*sizeof(angle_t));
-  w2 = (velocity_t *) malloc(NSTEP*sizeof(velocity_t));
-
-  /* stepsize for integration */
-
-  // CALC h: h = (TMAX - TMIN)/(NSTEP - 1.0);
-  mpfr_set(h, TMAX, MPFR_RNDN);
-  mpfr_sub(h, h, TMIN, MPFR_RNDN);
+  /* Calculate stepsize for integration */
+  mpfr_sub(h, TMAX, TMIN, MPFR_RNDN);
   NSTEP--;
-  mpfr_div_ui(h, h, NSTEP, MPFR_RNDN);
+  mpfr_div_ui(h, h, NSTEP, MPFR_RNDN);  //h = (TMAX - TMIN)/(NSTEP - 1.0)
   NSTEP++;
- 
-  /* Define array of t values */
-  seconds_t h_temp;
-  mpfr_init2(h_temp, 200);
 
-  for (i = 0; i < NSTEP; i++) {
-    // CALC t: t[i] = TMIN + h*i;
-    mpfr_set(h_temp, h, MPFR_RNDN);             // h_temp = h
-    mpfr_mul_ui(h_temp, h_temp, i, MPFR_RNDN);  // h_temp *= i
-    mpfr_init2(t[i], 200);
-    mpfr_set(t[i], TMIN, MPFR_RNDN);            // t = TMIN
-    mpfr_add(t[i], t[i], h_temp, MPFR_RNDN);          // t += h_temp
-  }
-
-  /* initial values - convert all angles to radians */
-
-  // CALC radian_conv: PI/180
+  /* Create constant for converting angles to radians. */
   mpfr_t radian_conv;
   mpfr_init2(radian_conv, 200);
-  mpfr_set_si(radian_conv, 180, MPFR_RNDN);
-  mpfr_t pi;
-  mpfr_init2(pi, 200);
-  mpfr_const_pi(pi, MPFR_RNDN);
-  mpfr_mul(radian_conv, radian_conv, pi, MPFR_RNDN);
+  mpfr_const_pi(radian_conv, MPFR_RNDN);
+  mpfr_div_si(radian_conv, radian_conv, 180, MPFR_RNDN);
 
-  mpfr_inits2(200, th1[0], w1[0], th2[0], w2[0], NULL);
-  mpfr_set(th1[0], TH10, MPFR_RNDN);  // th1[0] = TH10*PI/180.0;
-  mpfr_set(w1[0], W10, MPFR_RNDN);    // w1[0] = W10*PI/180.0;
-  mpfr_set(th2[0], TH20, MPFR_RNDN);  // th2[0] = TH20*PI/180.0;
-  mpfr_set(w2[0], W20, MPFR_RNDN);    // w2[0] = W20*PI/180.0; 
+  /* Set initial values converting angles to radians. */
+  mpfr_set(t_curr, TMIN, MPFR_RNDN);
+  mpfr_mul(yin.th1, TH10, radian_conv, MPFR_RNDN);  // th1[0] = TH10*PI/180.0;
+  mpfr_mul(yin.w1, W10, radian_conv, MPFR_RNDN);    // w1[0] = W10*PI/180.0;
+  mpfr_mul(yin.th2, TH20, radian_conv, MPFR_RNDN);  // th2[0] = TH20*PI/180.0;
+  mpfr_mul(yin.w2, W20, radian_conv, MPFR_RNDN);    // w2[0] = W20*PI/180.0; 
+
+  /* Clean up. */
+  mpfr_clears(TMIN, TMAX, TH10, W10, TH20, W20, radian_conv, NULL);
+
+  /* Print initial values. */
+  mpfr_out_str (stdout, 10, 0, t_curr, MPFR_RNDD);   putchar(' ');
+  mpfr_out_str (stdout, 10, 0, yin.th1, MPFR_RNDD);  putchar(' ');
+  mpfr_out_str (stdout, 10, 0, yin.w1, MPFR_RNDD);   putchar(' ');
+  mpfr_out_str (stdout, 10, 0, yin.th2, MPFR_RNDD);  putchar(' ');
+  mpfr_out_str (stdout, 10, 0, yin.w2, MPFR_RNDD);   putchar(' ');   putchar ('\n');
 
   /* perform the integration */
-
-  mpfr_out_str (stdout, 10, 0, t[0], MPFR_RNDD);    putchar(' ');
-  mpfr_out_str (stdout, 10, 0, th1[0], MPFR_RNDD);  putchar(' ');
-  mpfr_out_str (stdout, 10, 0, w1[0], MPFR_RNDD);   putchar(' ');
-  mpfr_out_str (stdout, 10, 0, th2[0], MPFR_RNDD);  putchar(' ');
-  mpfr_out_str (stdout, 10, 0, w2[0], MPFR_RNDD);   putchar(' ');   putchar ('\n');
-
   for (i = 0; i < NSTEP - 1; i++)
   { 
-    mpfr_set(yin.th1, th1[i], MPFR_RNDN);   // yin.th1 = th1[i];
-    mpfr_set(yin.w1, w1[i], MPFR_RNDN);     // yin.w1 = w1[i];
-    mpfr_set(yin.th2, th2[i], MPFR_RNDN);   // yin.th2 = th2[i];
-    mpfr_set(yin.w2, w2[i], MPFR_RNDN);     // yin.w2 = w2[i];
+    mpfr_add(t_next, t_curr, h, MPFR_RNDN);
 
-    runge_kutta(t[i], &yin, &yout, h);
+    runge_kutta(t_curr, &yin, &yout, h);
 
-    mpfr_inits2(200, th1[i+1], w1[i+1], th2[i+1], w2[i+1], NULL);
-    mpfr_set(th1[i+1], yout.th1, MPFR_RNDN); // th1[i+1] = yout.th1;
-    mpfr_set(w1[i+1], yout.w1, MPFR_RNDN);   // w1[i+1] = yout.w1;
-    mpfr_set(th2[i+1], yout.th2, MPFR_RNDN); // th2[i+1] = yout.th2;
-    mpfr_set(w2[i+1], yout.w2, MPFR_RNDN);   // w2[i+1] = yout.w2;
+    /* Print "t th1 w1 th2 w2" */
+    mpfr_out_str (stdout, 10, 0, t_next, MPFR_RNDD);    putchar(' ');
+    mpfr_out_str (stdout, 10, 0, yout.th1, MPFR_RNDD);  putchar(' ');
+    mpfr_out_str (stdout, 10, 0, yout.w1, MPFR_RNDD);   putchar(' ');
+    mpfr_out_str (stdout, 10, 0, yout.th2, MPFR_RNDD);  putchar(' ');
+    mpfr_out_str (stdout, 10, 0, yout.w2, MPFR_RNDD);   putchar(' ');   putchar ('\n');
 
-    mpfr_out_str (stdout, 10, 0, t[i+1], MPFR_RNDD);    putchar(' ');
-    mpfr_out_str (stdout, 10, 0, th1[i+1], MPFR_RNDD);  putchar(' ');
-    mpfr_out_str (stdout, 10, 0, w1[i+1], MPFR_RNDD);   putchar(' ');
-    mpfr_out_str (stdout, 10, 0, th2[i+1], MPFR_RNDD);  putchar(' ');
-    mpfr_out_str (stdout, 10, 0, w2[i+1], MPFR_RNDD);   putchar(' ');   putchar ('\n');
+    /* Set yin to yout. */
+    mpfr_set(yin.th1, yout.th1, MPFR_RNDN);
+    mpfr_set(yin.w1, yout.w1, MPFR_RNDN);
+    mpfr_set(yin.th2, yout.th2, MPFR_RNDN);
+    mpfr_set(yin.w2, yout.w2, MPFR_RNDN);
+  
+    mpfr_set(t_curr, t_next, MPFR_RNDN);
   }
 
+  /* Clean up. */
+  mpfr_clears(h, t_curr, t_next, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
+  mpfr_free_cache();
+
   return 0;
- 
 }
 
 /* function to fill array of derivatives dydx at t */
@@ -260,6 +232,10 @@ void derivs(y_t *yin, y_t *dydx)
 
   mpfr_div(dydx->w2, num2, den2, MPFR_RNDN);   // dydx->w2 = num2/den2
 
+  /* Clean up. */
+  mpfr_clears(num1, num2, den1, den2, temp1, temp2, const_mass_sum, del, cos_del, sin_del, 
+              sin_cos_del, sin_th1, sin_th2, w1_sqr, w2_sqr, NULL);
+  mpfr_free_cache();
 
   return;
 
@@ -386,7 +362,17 @@ void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h)
   mpfr_div(temp1, temp1, THREE, MPFR_RNDN);     // temp1 = (k1.w2 + k4.w2)/3.0
   mpfr_add(yout->w2, yout->w2, temp1, MPFR_RNDN);
   
- 
+  /* Clean up. */
+  mpfr_clears(dydx.th1, dydx.w1, dydx.th2, dydx.w2, 
+              dydxt.th1, dydxt.w1, dydxt.th2, dydxt.w2, 
+              yt.th1, yt.w1, yt.th2, yt.w2, 
+              k1.th1, k1.w1, k1.th2, k1.w2,
+              k2.th1, k2.w1, k2.th2, k2.w2,
+              k3.th1, k3.w1, k3.th2, k3.w2, 
+              k4.th1, k4.w1, k4.th2, k4.w2, 
+              temp1, THREE, SIX, ONE_HALF, NULL);
+  mpfr_free_cache();
+
   return;
 }
 

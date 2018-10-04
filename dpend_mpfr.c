@@ -47,6 +47,8 @@
 #define M1 1.0 /* mass of pendulum 1 in kg */
 #define M2 1.0 /* mass of pendulum 2 in kg */
 
+const size_t nbits = 4;
+
 typedef mpfr_t seconds_t;  // seconds_t because linux has its own time_t
 typedef mpfr_t angle_t;
 typedef mpfr_t velocity_t;
@@ -66,16 +68,16 @@ int main(int argc, char *argv[])
   unsigned int i = 0, NSTEP;
 
   seconds_t h, TMIN, TMAX, t_curr, t_next;
-  mpfr_inits2(200, h, TMIN, TMAX, t_curr, t_next, NULL);
+  mpfr_inits2(nbits, h, TMIN, TMAX, t_curr, t_next, NULL);
 
   angle_t TH10, TH20;
-  mpfr_inits2(200, TH10, TH20, NULL);
+  mpfr_inits2(nbits, TH10, TH20, NULL);
 
   velocity_t W10, W20;
-  mpfr_inits2(200, W10, W20, NULL);
+  mpfr_inits2(nbits, W10, W20, NULL);
 
   y_t yin, yout;
-  mpfr_inits2(200, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
+  mpfr_inits2(nbits, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
 
   /* obtain command line values */
   mpfr_set_flt(TMIN, atof(argv[1]), MPFR_RNDN);
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
 
   /* Create constant for converting angles to radians. */
   mpfr_t radian_conv;
-  mpfr_init2(radian_conv, 200);
+  mpfr_init2(radian_conv, nbits);
   mpfr_const_pi(radian_conv, MPFR_RNDN);
   mpfr_div_si(radian_conv, radian_conv, 180, MPFR_RNDN);
 
@@ -154,12 +156,12 @@ void derivs(y_t *yin, y_t *dydx)
   velocity_t w1_sqr, w2_sqr;
 
   // CALC: const_mass_sum = M1 + M2
-  mpfr_init2(const_mass_sum, 200);
+  mpfr_init2(const_mass_sum, nbits);
   mpfr_set_d(const_mass_sum, M1, MPFR_RNDN);
   mpfr_add_d(const_mass_sum, const_mass_sum, M2, MPFR_RNDN);
 
   // INIT angle_t variables
-  mpfr_inits2(200, del, cos_del, sin_del, sin_cos_del, sin_th1, sin_th2, NULL);
+  mpfr_inits2(nbits, del, cos_del, sin_del, sin_cos_del, sin_th1, sin_th2, NULL);
 
   // CALC: del = yin->th2 - yin->th1;
   mpfr_sub(del, yin->th2, yin->th1, MPFR_RNDN);
@@ -171,14 +173,14 @@ void derivs(y_t *yin, y_t *dydx)
   mpfr_sin(sin_th2, yin->th2, MPFR_RNDN);             // sin(th_2)
 
   // INIT velocity_t variables
-  mpfr_inits2(200, w1_sqr, w2_sqr, NULL);
+  mpfr_inits2(nbits, w1_sqr, w2_sqr, NULL);
 
   // CALC: velocity_t variables;
   mpfr_sqr(w1_sqr, yin->w1, MPFR_RNDN);   // w1^2
   mpfr_sqr(w2_sqr, yin->w2, MPFR_RNDN);   // w2^2
   
   // INIT numerators, denomenators, and temps
-  mpfr_inits2(200, num1, den1, num2, den2, temp1, temp2, NULL);
+  mpfr_inits2(nbits, num1, den1, num2, den2, temp1, temp2, NULL);
 
   // SET: dydx->th1 = yin->w1;
   mpfr_set(dydx->th1, yin->w1, MPFR_RNDN);
@@ -249,22 +251,22 @@ void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h)
   mpfr_t temp1;
   mpfr_t THREE, SIX, ONE_HALF;
 
-  mpfr_inits2(200, THREE, SIX, ONE_HALF, NULL);
+  mpfr_inits2(nbits, THREE, SIX, ONE_HALF, NULL);
   mpfr_set_d(THREE, 3.0, MPFR_RNDN);
   mpfr_set_d(SIX, 6.0, MPFR_RNDN);
   mpfr_set_d(ONE_HALF, 0.5, MPFR_RNDN);
   
   // INIT y_t struct contents
-  mpfr_inits2(200, dydx.th1, dydx.w1, dydx.th2, dydx.w2, NULL);
-  mpfr_inits2(200, dydxt.th1, dydxt.w1, dydxt.th2, dydxt.w2, NULL);
-  mpfr_inits2(200, yt.th1, yt.w1, yt.th2, yt.w2, NULL);
-  mpfr_inits2(200, k1.th1, k1.w1, k1.th2, k1.w2, NULL);
-  mpfr_inits2(200, k2.th1, k2.w1, k2.th2, k2.w2, NULL);
-  mpfr_inits2(200, k3.th1, k3.w1, k3.th2, k3.w2, NULL);
-  mpfr_inits2(200, k4.th1, k4.w1, k4.th2, k4.w2, NULL);
+  mpfr_inits2(nbits, dydx.th1, dydx.w1, dydx.th2, dydx.w2, NULL);
+  mpfr_inits2(nbits, dydxt.th1, dydxt.w1, dydxt.th2, dydxt.w2, NULL);
+  mpfr_inits2(nbits, yt.th1, yt.w1, yt.th2, yt.w2, NULL);
+  mpfr_inits2(nbits, k1.th1, k1.w1, k1.th2, k1.w2, NULL);
+  mpfr_inits2(nbits, k2.th1, k2.w1, k2.th2, k2.w2, NULL);
+  mpfr_inits2(nbits, k3.th1, k3.w1, k3.th2, k3.w2, NULL);
+  mpfr_inits2(nbits, k4.th1, k4.w1, k4.th2, k4.w2, NULL);
 
   // INIT temps
-  mpfr_init2(temp1, 200);
+  mpfr_init2(temp1, nbits);
   
   derivs(yin, &dydx); /* first step */
 

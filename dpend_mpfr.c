@@ -1,5 +1,5 @@
 /* 
- * dpend_mpfr.c
+ * E dpend_mpfr.c
  *
  * Example code to solve double pendulum ODEs using fourth order 
  * Runge-Kutta. 
@@ -47,7 +47,7 @@
 #define M1 1.0 /* mass of pendulum 1 in kg */
 #define M2 1.0 /* mass of pendulum 2 in kg */
 
-const size_t nbits = 4;
+const size_t nbits = 32;
 
 typedef mpfr_t seconds_t;  // seconds_t because linux has its own time_t
 typedef mpfr_t angle_t;
@@ -88,6 +88,11 @@ int main(int argc, char *argv[])
   mpfr_set_flt(W20, atof(argv[6]), MPFR_RNDN);
   NSTEP = atoi(argv[7]);
 
+  if (NSTEP < 2) {
+    printf("Number of steps must be greater than 1");
+    return 0;
+  }
+
   /* Calculate stepsize for integration */
   mpfr_sub(h, TMAX, TMIN, MPFR_RNDN);
   NSTEP--;
@@ -111,11 +116,7 @@ int main(int argc, char *argv[])
   mpfr_clears(TMIN, TMAX, TH10, W10, TH20, W20, radian_conv, NULL);
 
   /* Print initial values. */
-  mpfr_out_str (stdout, 10, 0, t_curr, MPFR_RNDD);   putchar(' ');
-  mpfr_out_str (stdout, 10, 0, yin.th1, MPFR_RNDD);  putchar(' ');
-  mpfr_out_str (stdout, 10, 0, yin.w1, MPFR_RNDD);   putchar(' ');
-  mpfr_out_str (stdout, 10, 0, yin.th2, MPFR_RNDD);  putchar(' ');
-  mpfr_out_str (stdout, 10, 0, yin.w2, MPFR_RNDD);   putchar(' ');   putchar ('\n');
+  mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", t_curr, yin.th1, yin.w1, yin.th2, yin.w2);
 
   /* perform the integration */
   for (i = 0; i < NSTEP - 1; i++)
@@ -125,11 +126,7 @@ int main(int argc, char *argv[])
     runge_kutta(t_curr, &yin, &yout, h);
 
     /* Print "t th1 w1 th2 w2" */
-    mpfr_out_str (stdout, 10, 0, t_next, MPFR_RNDD);    putchar(' ');
-    mpfr_out_str (stdout, 10, 0, yout.th1, MPFR_RNDD);  putchar(' ');
-    mpfr_out_str (stdout, 10, 0, yout.w1, MPFR_RNDD);   putchar(' ');
-    mpfr_out_str (stdout, 10, 0, yout.th2, MPFR_RNDD);  putchar(' ');
-    mpfr_out_str (stdout, 10, 0, yout.w2, MPFR_RNDD);   putchar(' ');   putchar ('\n');
+    mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", t_next, yout.th1, yout.w1, yout.th2, yout.w2);    
 
     /* Set yin to yout. */
     mpfr_set(yin.th1, yout.th1, MPFR_RNDN);
@@ -232,9 +229,9 @@ void derivs(y_t *yin, y_t *dydx)
   mpfr_mul(temp1, temp1, sin_cos_del, MPFR_RNDN);   // temp1 = M2*L2*w2_sqr*sin_cos_del
   mpfr_sub(num2, num2, temp1, MPFR_RNDN);
 
-  mpfr_div(dydx->w2, num2, den2, MPFR_RNDN);   // dydx->w2 = num2/den2
+  mpfr_div(dydx->w2, num2, den2, MPFR_RNDN);   // dydx->w2 = num2/den2 
 
-  /* Clean up. */
+  /*  Clean up. */
   mpfr_clears(num1, num2, den1, den2, temp1, temp2, const_mass_sum, del, cos_del, sin_del, 
               sin_cos_del, sin_th1, sin_th2, w1_sqr, w2_sqr, NULL);
   mpfr_free_cache();
@@ -344,7 +341,6 @@ void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h)
   mpfr_div(temp1, temp1, THREE, MPFR_RNDN);   // temp1 = (k1.w1 + k4.w1)/3.0
   mpfr_add(yout->w1, yout->w1, temp1, MPFR_RNDN);
 
-
   mpfr_mul(k4.th2, h, dydxt.th2, MPFR_RNDN);  // k4.th2 = h*dydxt.th2;
   // CALC: yout->th2 = yin->th2 + k1.th2/6.0 + k2.th2/3.0 + k3.th2/3.0 + k4.th2/6.0;
   mpfr_set(yout->th2, yin->th2, MPFR_RNDN);   // yout->th2 = yin->th2
@@ -355,17 +351,17 @@ void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h)
   mpfr_div(temp1, temp1, THREE, MPFR_RNDN);     // temp1 = (k1.th2 + k4.th2)/3.0
   mpfr_add(yout->th2, yout->th2, temp1, MPFR_RNDN);
 
-  mpfr_mul(k4.w1, h, dydxt.w1, MPFR_RNDN);  // k4.w2 = h*dydxt.w2;
+  mpfr_mul(k4.w2, h, dydxt.w2, MPFR_RNDN);  // k4.w2 = h*dydxt.w2;
   // CALC: yout->w2 = yin->w2 + k1.w2/6.0 + k2.w2/3.0 + k3.w2/3.0 + k4.w2/6.0;
   mpfr_set(yout->w2, yin->w2, MPFR_RNDN);   // yout->w2 = yin->w2
   mpfr_add(temp1, k1.w2, k4.w2, MPFR_RNDN);
   mpfr_div(temp1, temp1, SIX, MPFR_RNDN);     // temp1 = (k1.w2 + k4.w2)/6.0
-  mpfr_add(yout->th2, yout->th2, temp1, MPFR_RNDN);
+  mpfr_add(yout->w2, yout->w2, temp1, MPFR_RNDN);
   mpfr_add(temp1, k2.w2, k3.w2, MPFR_RNDN);
   mpfr_div(temp1, temp1, THREE, MPFR_RNDN);     // temp1 = (k1.w2 + k4.w2)/3.0
   mpfr_add(yout->w2, yout->w2, temp1, MPFR_RNDN);
-  
-  /* Clean up. */
+
+ /* Clean up. */
   mpfr_clears(dydx.th1, dydx.w1, dydx.th2, dydx.w2, 
               dydxt.th1, dydxt.w1, dydxt.th2, dydxt.w2, 
               yt.th1, yt.w1, yt.th2, yt.w2, 
@@ -378,4 +374,6 @@ void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h)
 
   return;
 }
+
+
 

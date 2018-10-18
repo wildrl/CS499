@@ -47,7 +47,7 @@
 #define M1 1.0 /* mass of pendulum 1 in kg */
 #define M2 1.0 /* mass of pendulum 2 in kg */
 
-const size_t nbits = 32;
+size_t nbits;
 
 typedef mpfr_t seconds_t;  // seconds_t because linux has its own time_t
 typedef mpfr_t angle_t;
@@ -67,6 +67,9 @@ int main(int argc, char *argv[])
 {
   unsigned int i = 0, NSTEP;
 
+  /* Get percision from args before any initilizing. */
+  nbits = atoi(argv[8]);
+
   seconds_t h, TMIN, TMAX, t_curr, t_next;
   mpfr_inits2(nbits, h, TMIN, TMAX, t_curr, t_next, NULL);
 
@@ -78,6 +81,9 @@ int main(int argc, char *argv[])
 
   y_t yin, yout;
   mpfr_inits2(nbits, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
+
+  mpfr_t x1, y1, x2, y2, temp;
+  mpfr_inits2(nbits, x1, y1, x2, y2, temp, NULL);
 
   /* obtain command line values */
   mpfr_set_flt(TMIN, atof(argv[1]), MPFR_RNDN);
@@ -115,18 +121,59 @@ int main(int argc, char *argv[])
   /* Clean up. */
   mpfr_clears(TMIN, TMAX, TH10, W10, TH20, W20, radian_conv, NULL);
 
+  /* Get initial coordinates. */
+  mpfr_set_d(x1, L1, MPFR_RNDN);        // calc x1
+  mpfr_sin(temp, yin.th1, MPFR_RNDN);
+  mpfr_mul(x1, x1, temp, MPFR_RNDN);
+
+  mpfr_set_d(y1, -L1, MPFR_RNDN);       // calc y1
+  mpfr_cos(temp, yin.th1, MPFR_RNDN);
+  mpfr_mul(y1, y1, temp, MPFR_RNDN);
+
+  mpfr_set_d(x2, L2, MPFR_RNDN);        // calc x2
+  mpfr_sin(temp, yin.th2, MPFR_RNDN);
+  mpfr_mul(x2, x2, temp, MPFR_RNDN);
+  mpfr_add(x2, x2, x1, MPFR_RNDN);
+
+  mpfr_set_d(y2, -L2, MPFR_RNDN);        // calc y2
+  mpfr_cos(temp, yin.th2, MPFR_RNDN);
+  mpfr_mul(y2, y2, temp, MPFR_RNDN);
+  mpfr_add(y2, y2, y1, MPFR_RNDN);
+
+
   /* Print initial values. */
-  mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", t_curr, yin.th1, yin.w1, yin.th2, yin.w2);
+ // mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", t_curr, yin.th1, yin.w1, yin.th2, yin.w2);
+  mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", t_curr, x1, y1, x2, y2);
 
   /* perform the integration */
   for (i = 0; i < NSTEP - 1; i++)
   { 
-    mpfr_add(t_next, t_curr, h, MPFR_RNDN);
+    mpfr_add(t_next, t_curr, h, MPFR_RNDN); // update time
+    runge_kutta(t_curr, &yin, &yout, h);    // preform runge kutta
 
-    runge_kutta(t_curr, &yin, &yout, h);
+    /* Get coordinates. */
+    mpfr_set_d(x1, L1, MPFR_RNDN);        // calc x1
+    mpfr_sin(temp, yout.th1, MPFR_RNDN);
+    mpfr_mul(x1, x1, temp, MPFR_RNDN);
+
+    mpfr_set_d(y1, -L1, MPFR_RNDN);       // calc y1
+    mpfr_cos(temp, yout.th1, MPFR_RNDN);
+    mpfr_mul(y1, y1, temp, MPFR_RNDN);
+
+    mpfr_set_d(x2, L2, MPFR_RNDN);        // calc x2
+    mpfr_sin(temp, yout.th2, MPFR_RNDN);
+    mpfr_mul(x2, x2, temp, MPFR_RNDN);
+    mpfr_add(x2, x2, x1, MPFR_RNDN);
+
+    mpfr_set_d(y2, -L2, MPFR_RNDN);        // calc y2
+    mpfr_cos(temp, yout.th2, MPFR_RNDN);
+    mpfr_mul(y2, y2, temp, MPFR_RNDN);
+    mpfr_add(y2, y2, y1, MPFR_RNDN);
 
     /* Print "t th1 w1 th2 w2" */
-    mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", t_next, yout.th1, yout.w1, yout.th2, yout.w2);    
+    //mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", 
+    //            t_next, yout.th1, yout.w1, yout.th2, yout.w2);  
+    mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", t_curr, x1, y1, x2, y2);  
 
     /* Set yin to yout. */
     mpfr_set(yin.th1, yout.th1, MPFR_RNDN);

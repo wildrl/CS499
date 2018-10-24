@@ -60,6 +60,9 @@ typedef struct {
   velocity_t w2;
 } y_t;
 
+FILE *polar_output;
+FILE *cartesian_output;
+
 void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h);
 void derivs(y_t *yin, y_t *dydx);
 
@@ -69,6 +72,14 @@ int main(int argc, char *argv[])
 
   /* Get percision from args before any initilizing. */
   nbits = atoi(argv[8]);
+
+  /* Create output files. */
+  char polar_fn[16];
+  char cartesian_fn[20];
+  snprintf(polar_fn, 12, "polar_%sbit.txt", argv[8]);
+  snprintf(cartesian_fn, 20, "cartesian_%sbit.txt", argv[8]);
+  polar_output = fopen(polar_fn, "w");
+
 
   seconds_t h, TMIN, TMAX, t_curr, t_next;
   mpfr_inits2(nbits, h, TMIN, TMAX, t_curr, t_next, NULL);
@@ -141,9 +152,13 @@ int main(int argc, char *argv[])
   mpfr_add(y2, y2, y1, MPFR_RNDN);
 
 
-  /* Print initial values. */
- // mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", t_curr, yin.th1, yin.w1, yin.th2, yin.w2);
-  mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", t_curr, x1, y1, x2, y2);
+  /* Print initial polar coordinates. */
+  mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", 
+              t_curr, yin.th1, yin.w1, yin.th2, yin.w2);
+
+  /* Print initial Cartesian coordinates. */
+  mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", 
+              t_curr, x1, y1, x2, y2);
 
   /* perform the integration */
   for (i = 0; i < NSTEP - 1; i++)
@@ -151,29 +166,29 @@ int main(int argc, char *argv[])
     mpfr_add(t_next, t_curr, h, MPFR_RNDN); // update time
     runge_kutta(t_curr, &yin, &yout, h);    // preform runge kutta
 
-    /* Get coordinates. */
+    /* Print polar coordinates. */
+    mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", 
+                t_next, yout.th1, yout.w1, yout.th2, yout.w2); 
+
+    /* Convert to Cartesian coordinates. */
     mpfr_set_d(x1, L1, MPFR_RNDN);        // calc x1
     mpfr_sin(temp, yout.th1, MPFR_RNDN);
     mpfr_mul(x1, x1, temp, MPFR_RNDN);
-
     mpfr_set_d(y1, -L1, MPFR_RNDN);       // calc y1
     mpfr_cos(temp, yout.th1, MPFR_RNDN);
     mpfr_mul(y1, y1, temp, MPFR_RNDN);
-
     mpfr_set_d(x2, L2, MPFR_RNDN);        // calc x2
     mpfr_sin(temp, yout.th2, MPFR_RNDN);
     mpfr_mul(x2, x2, temp, MPFR_RNDN);
     mpfr_add(x2, x2, x1, MPFR_RNDN);
-
-    mpfr_set_d(y2, -L2, MPFR_RNDN);        // calc y2
+    mpfr_set_d(y2, -L2, MPFR_RNDN);       // calc y2
     mpfr_cos(temp, yout.th2, MPFR_RNDN);
     mpfr_mul(y2, y2, temp, MPFR_RNDN);
     mpfr_add(y2, y2, y1, MPFR_RNDN);
 
-    /* Print "t th1 w1 th2 w2" */
-    //mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", 
-    //            t_next, yout.th1, yout.w1, yout.th2, yout.w2);  
-    mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", t_curr, x1, y1, x2, y2);  
+    /* Print Cartesian coordinates */ 
+    mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", 
+                t_curr, x1, y1, x2, y2);  
 
     /* Set yin to yout. */
     mpfr_set(yin.th1, yout.th1, MPFR_RNDN);

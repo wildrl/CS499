@@ -8,8 +8,8 @@ from matplotlib.patches import Circle
 
 NSTEPS=0
 
-print np.finfo(np.longdouble)
-print np.finfo(np.float64)
+print(np.finfo(np.longdouble))
+print(np.finfo(np.float64))
 
 mpfr8_file = open("./mpfr_data/cartesian8.txt", "r")
 mpfr16_file = open("./mpfr_data/cartesian16.txt", "r")

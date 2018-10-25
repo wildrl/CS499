@@ -71,10 +71,11 @@ line16, = ax.plot([], [], 'y-', lw=2)
 line32, = ax.plot([], [], 'g-', lw=2)
 line64, = ax.plot([], [], 'b-', lw=2)
 line128, = ax.plot([], [], 'm-', lw=2)
+
 time_template = 't = %.6fs'
 time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
 
-step_template = 'step = %fs'
+step_template = 'step = %d'
 step_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
 
 

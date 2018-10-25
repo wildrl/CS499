@@ -74,12 +74,12 @@ int main(int argc, char *argv[])
   nbits = atoi(argv[8]);
 
   /* Create output files. */
-  char polar_fn[16];
-  char cartesian_fn[20];
-  snprintf(polar_fn, 12, "polar_%sbit.txt", argv[8]);
-  snprintf(cartesian_fn, 20, "cartesian_%sbit.txt", argv[8]);
+  char polar_fn[30];
+  char cartesian_fn[30];
+  snprintf(polar_fn, 30, "./mpfr_data/polar%s.txt", argv[8]);
+  snprintf(cartesian_fn, 30, "./mpfr_data/cartesian%s.txt", argv[8]);
   polar_output = fopen(polar_fn, "w");
-
+  cartesian_output = fopen(cartesian_fn, "w");
 
   seconds_t h, TMIN, TMAX, t_curr, t_next;
   mpfr_inits2(nbits, h, TMIN, TMAX, t_curr, t_next, NULL);
@@ -153,11 +153,13 @@ int main(int argc, char *argv[])
 
 
   /* Print initial polar coordinates. */
-  mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", 
+  mpfr_fprintf(polar_output, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
               t_curr, yin.th1, yin.w1, yin.th2, yin.w2);
 
+
+
   /* Print initial Cartesian coordinates. */
-  mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", 
+  mpfr_fprintf(cartesian_output, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
               t_curr, x1, y1, x2, y2);
 
   /* perform the integration */
@@ -167,7 +169,7 @@ int main(int argc, char *argv[])
     runge_kutta(t_curr, &yin, &yout, h);    // preform runge kutta
 
     /* Print polar coordinates. */
-    mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", 
+    mpfr_fprintf(polar_output, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
                 t_next, yout.th1, yout.w1, yout.th2, yout.w2); 
 
     /* Convert to Cartesian coordinates. */
@@ -187,7 +189,7 @@ int main(int argc, char *argv[])
     mpfr_add(y2, y2, y1, MPFR_RNDN);
 
     /* Print Cartesian coordinates */ 
-    mpfr_printf("%0.6RNf %0.6RNf %0.6RNF %0.6RNF %0.6RNF\n", 
+    mpfr_fprintf(cartesian_output, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
                 t_curr, x1, y1, x2, y2);  
 
     /* Set yin to yout. */
@@ -202,6 +204,10 @@ int main(int argc, char *argv[])
   /* Clean up. */
   mpfr_clears(h, t_curr, t_next, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
   mpfr_free_cache();
+
+  /* Close files. */
+  fclose(polar_output);
+  fclose(cartesian_output);
 
   return 0;
 }

@@ -333,6 +333,7 @@ void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h)
   // INIT temps
   mpfr_init2(temp1, nbits);
   
+
   derivs(yin, &dydx); /* first step */
 
   mpfr_mul(k1.th1, h, dydx.th1, MPFR_RNDN);       // k1.th1 = h*dydx.th1;
@@ -350,7 +351,6 @@ void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h)
   mpfr_mul(k1.w2, h, dydx.w2, MPFR_RNDN);         // k1.w2 = h*dydx.w2;
   mpfr_mul(yt.w2, ONE_HALF, k1.w2, MPFR_RNDN);  
   mpfr_add(yt.w2, yt.w2, yin->w2, MPFR_RNDN);     // yt.w2 = yin->w2 + 0.5*k1.w2;
-  
   
 
   derivs(&yt, &dydxt); /* second step */ 

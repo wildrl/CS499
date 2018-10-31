@@ -8,8 +8,8 @@ from matplotlib.patches import Circle
 
 NSTEPS=0
 
-print np.finfo(np.longdouble)
-print np.finfo(np.float64)
+print(np.finfo(np.longdouble))
+print(np.finfo(np.float64))
 
 mpfr8_file = open("./mpfr_data/cartesian8.txt", "r")
 mpfr16_file = open("./mpfr_data/cartesian16.txt", "r")
@@ -69,11 +69,12 @@ ax = fig.add_subplot(111, autoscale_on=False, xlim=(-2, 2), ylim=(-2, 2))
 ax.set_aspect('equal')
 ax.grid()
 
-line8, = ax.plot([], [], 'r-', lw=2)
-line16, = ax.plot([], [], 'y-', lw=2)
-line32, = ax.plot([], [], 'g-', lw=2)
-line64, = ax.plot([], [], 'b-', lw=2)
-line128, = ax.plot([], [], 'm-', lw=2)
+line8, = ax.plot([], [], 'r-', lw=2, label='8-bit')
+line16, = ax.plot([], [], 'y-', lw=2, label='16-bit')
+line32, = ax.plot([], [], 'g-', lw=2, label='32-bit')
+line64, = ax.plot([], [], 'b-', lw=2, label='64-bit')
+line128, = ax.plot([], [], 'm-', lw=2, label='128-bit')
+ax.legend()
 
 time_template = 't = %.6fs'
 time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)

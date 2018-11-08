@@ -93,8 +93,8 @@ int main(int argc, char *argv[])
   y_t yin, yout;
   mpfr_inits2(nbits, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
 
-  mpfr_t x1, y1, x2, y2, temp;
-  mpfr_inits2(nbits, x1, y1, x2, y2, temp, NULL);
+  //mpfr_t x1, y1, x2, y2, temp;///////////
+  //mpfr_inits2(nbits, x1, y1, x2, y2, temp, NULL);////////////
 
   /* obtain command line values */
   mpfr_set_flt(TMIN, atof(argv[1]), MPFR_RNDN);
@@ -132,35 +132,10 @@ int main(int argc, char *argv[])
   /* Clean up. */
   mpfr_clears(TMIN, TMAX, TH10, W10, TH20, W20, radian_conv, NULL);
 
-  /* Get initial coordinates. */
-  mpfr_set_d(x1, L1, MPFR_RNDN);        // calc x1
-  mpfr_sin(temp, yin.th1, MPFR_RNDN);
-  mpfr_mul(x1, x1, temp, MPFR_RNDN);
+  //print initial values
+  output_polar(polar_output, t_curr, &yout);
+  output_cartesian(cartesian_output, t_curr, &yout, L1, L2);
 
-  mpfr_set_d(y1, -L1, MPFR_RNDN);       // calc y1
-  mpfr_cos(temp, yin.th1, MPFR_RNDN);
-  mpfr_mul(y1, y1, temp, MPFR_RNDN);
-
-  mpfr_set_d(x2, L2, MPFR_RNDN);        // calc x2
-  mpfr_sin(temp, yin.th2, MPFR_RNDN);
-  mpfr_mul(x2, x2, temp, MPFR_RNDN);
-  mpfr_add(x2, x2, x1, MPFR_RNDN);
-
-  mpfr_set_d(y2, -L2, MPFR_RNDN);        // calc y2
-  mpfr_cos(temp, yin.th2, MPFR_RNDN);
-  mpfr_mul(y2, y2, temp, MPFR_RNDN);
-  mpfr_add(y2, y2, y1, MPFR_RNDN);
-
-
-  /* Print initial polar coordinates. */
-  mpfr_fprintf(polar_output, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
-              t_curr, yin.th1, yin.w1, yin.th2, yin.w2);
-
-
-
-  /* Print initial Cartesian coordinates. */
-  mpfr_fprintf(cartesian_output, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
-              t_curr, x1, y1, x2, y2);
 
   /* perform the integration */
   for (i = 0; i < NSTEP - 1; i++)
@@ -172,25 +147,10 @@ int main(int argc, char *argv[])
     mpfr_fprintf(polar_output, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
                 t_next, yout.th1, yout.w1, yout.th2, yout.w2); 
 
-    /* Convert to Cartesian coordinates. */
-    mpfr_set_d(x1, L1, MPFR_RNDN);        // calc x1
-    mpfr_sin(temp, yout.th1, MPFR_RNDN);
-    mpfr_mul(x1, x1, temp, MPFR_RNDN);
-    mpfr_set_d(y1, -L1, MPFR_RNDN);       // calc y1
-    mpfr_cos(temp, yout.th1, MPFR_RNDN);
-    mpfr_mul(y1, y1, temp, MPFR_RNDN);
-    mpfr_set_d(x2, L2, MPFR_RNDN);        // calc x2
-    mpfr_sin(temp, yout.th2, MPFR_RNDN);
-    mpfr_mul(x2, x2, temp, MPFR_RNDN);
-    mpfr_add(x2, x2, x1, MPFR_RNDN);
-    mpfr_set_d(y2, -L2, MPFR_RNDN);       // calc y2
-    mpfr_cos(temp, yout.th2, MPFR_RNDN);
-    mpfr_mul(y2, y2, temp, MPFR_RNDN);
-    mpfr_add(y2, y2, y1, MPFR_RNDN);
+    //print
+    output_polar(polar_output, t_next, &yout);
+    output_cartesian(cartesian_output, t_next, &yout, L1, L2);
 
-    /* Print Cartesian coordinates */ 
-    mpfr_fprintf(cartesian_output, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
-                t_curr, x1, y1, x2, y2);  
 
     /* Set yin to yout. */
     mpfr_set(yin.th1, yout.th1, MPFR_RNDN);
@@ -202,7 +162,8 @@ int main(int argc, char *argv[])
   }
 
   /* Clean up. */
-  mpfr_clears(h, t_curr, t_next, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
+  mpfr_clears(h, t_curr, t_next, yin.th1, yin.w1, yin.th2, yin.w2,
+              yout.th1, yout.w1, yout.th2, yout.w2, NULL);
   mpfr_free_cache();
 
   /* Close files. */

@@ -15,8 +15,8 @@ mpfr: dpend_mpfr
 solve_dpend: solve_dpend.c
 	$(CC) -g -O3 -Wall -std=c99 -o $@ $< -lm
 
-dpend_mpfr: dpend_mpfr.c
-	$(CC) -g -O3 -Wall -std=c99 -o $@ $< -lgmp -lmpfr
+dpend_mpfr: dpend_out.c dpend_mpfr.c
+	$(CC) -g -O3 -Wall -std=c99 -o $@ $^ -lgmp -lmpfr
 
 clean:
 	rm -f $(TARGETS)

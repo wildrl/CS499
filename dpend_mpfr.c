@@ -36,6 +36,7 @@
 #include <math.h>
 #include <gmp.h>
 #include <mpfr.h>
+#include <dpend_out.c>
 
 /* hardwired parameters */
 

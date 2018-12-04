@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <gmp.h>
 #include <mpfr.h>
-#include <dpend_mpfr.c>
 
 void output_polar(FILE *file, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mpfr_t* th2, mpfr_t* w2) {
   mpfr_fprintf(file, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 

@@ -80,6 +80,13 @@ void output_energy(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mp
   mpfr_mul_d(temp2, temp2, M2, MPFR_RNDN);
 
   mpfr_add(temp, temp, temp2, MPFR_RNDN);
+
+  mpfr_mul(temp2, *w1, *w1, MPFR_RNDN);
+  mpfr_mul_d(temp2, temp2, L1, MPFR_RNDN);
+  mpfr_mul_d(temp2, temp2, L1, MPFR_RNDN);
+  mpfr_mul_d(temp2, temp2, M2, MPFR_RNDN);
+
+  mpfr_add(temp, temp, temp2, MPFR_RNDN);
   mpfr_mul_d(temp, temp, half, MPFR_RNDN);
   
   mpfr_mul(temp2, *w1, *w2, MPFR_RNDN);
@@ -97,7 +104,7 @@ void output_energy(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mp
   //total energy
   mpfr_add(t_energy, p_energy, k_energy, MPFR_RNDN);
 
-  mpfr_fprintf(file, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
+  mpfr_fprintf(file, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF\n", 
                *t, p_energy, k_energy, t_energy); 
 
   

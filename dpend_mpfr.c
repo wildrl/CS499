@@ -63,6 +63,7 @@ typedef struct {
 
 FILE *polar_output;
 FILE *cartesian_output;
+FILE *energy_output;
 
 void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h);
 void derivs(y_t *yin, y_t *dydx);
@@ -77,10 +78,13 @@ int main(int argc, char *argv[])
   /* Create output files. */
   char polar_fn[30];
   char cartesian_fn[30];
+  char energy_fn[30];
   snprintf(polar_fn, 30, "./mpfr_data/polar%s.txt", argv[8]);
   snprintf(cartesian_fn, 30, "./mpfr_data/cartesian%s.txt", argv[8]);
+  snprintf(energy_fn, 30, "./mpfr_data/energy%s.txt", argv[8]);
   polar_output = fopen(polar_fn, "w");
   cartesian_output = fopen(cartesian_fn, "w");
+  energy_output = fopen(energy_fn, "w");
 
   seconds_t h, TMIN, TMAX, t_curr, t_next;
   mpfr_inits2(nbits, h, TMIN, TMAX, t_curr, t_next, NULL);
@@ -148,7 +152,7 @@ int main(int argc, char *argv[])
     //print
     output_polar(polar_output, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2);
     output_cartesian(cartesian_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2);
-    output_energy(nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2, G);
+    output_energy(energy_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2, G);
 
     /* Set yin to yout. */
     mpfr_set(yin.th1, yout.th1, MPFR_RNDN);

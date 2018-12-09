@@ -50,11 +50,12 @@ void output_cartesian(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1,
                t, x1, y1, x2, y2); 
 }
 
-output_energy(int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mpfr_t* th2, mpfr_t* w2, double L1, double L2, double G){
+output_energy(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mpfr_t* th2, mpfr_t* w2, double L1, double L2, double G){
   
   mpfr_t p_energy, k_energy, t_energy, temp, temp2, cos_th1, cos_th2, del, cos_del;
   mpfr_inits2(nbits, p_energy, k_energy, t_energy, temp, cos_th1, cos_th2, del, cos_del, NULL);
   double half = 0.5;
+  double neg = -1.0;
 
   // PE
   mpfr_cos(cos_th1, *th1, MPFR_RNDN);     
@@ -85,8 +86,10 @@ output_energy(int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mpfr_t* th2, mpfr_t
   mpfr_mul(temp2, temp2, cos_del, MPFR_RNDN);
 
   mpfr_add(k_energy, temp, temp2, MPFR_RNDN);
-  mpfr_mul(k_energy, temp, -p_energy, MPFR_RNDN);
+  mpfr_mul_d(temp2, p_energy, neg, MPFR_RNDN);
+  mpfr_mul(k_energy, temp, temp2, MPFR_RNDN);
 
+  //total energy
   mpfr_add(t_energy, p_energy, k_energy, MPFR_RNDN);
 
   mpfr_fprintf(file, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 

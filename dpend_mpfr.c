@@ -136,22 +136,19 @@ int main(int argc, char *argv[])
   //print initial values
   output_polar(polar_output, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2);
   output_cartesian(cartesian_output, nbits, &t_curr, &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2);
-
+  output_energy(nbits, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2, G);
 
   /* perform the integration */
   for (i = 0; i < NSTEP - 1; i++)
   { 
     mpfr_add(t_next, t_curr, h, MPFR_RNDN); // update time
     runge_kutta(t_curr, &yin, &yout, h);    // preform runge kutta
-
-    /* Print polar coordinates. */
-    //mpfr_fprintf(polar_output, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
-    //            t_next, yout.th1, yout.w1, yout.th2, yout.w2); 
+          t_next, yout.th1, yout.w1, yout.th2, yout.w2); 
 
     //print
     output_polar(polar_output, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2);
     output_cartesian(cartesian_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2);
-
+    output_energy(nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2, G);
 
     /* Set yin to yout. */
     mpfr_set(yin.th1, yout.th1, MPFR_RNDN);

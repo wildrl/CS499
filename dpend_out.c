@@ -10,6 +10,7 @@
 #include <gmp.h>
 #include <mpfr.h>
 
+
 void output_polar(FILE *file, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mpfr_t* th2, mpfr_t* w2) 
 {
   mpfr_fprintf(file, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
@@ -48,3 +49,50 @@ void output_cartesian(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1,
   mpfr_fprintf(file, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
                t, x1, y1, x2, y2); 
 }
+
+output_energy(int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mpfr_t* th2, mpfr_t* w2, double L1, double L2, double G){
+  
+  mpfr_t p_energy, k_energy, t_energy, temp, temp2, cos_th1, cos_th2, del, cos_del;
+  mpfr_inits2(nbits, p_energy, k_energy, t_energy, temp, cos_th1, cos_th2, del, cos_del, NULL);
+  double half = 0.5;
+
+  // PE
+  mpfr_cos(cos_th1, *th1, MPFR_RNDN);     
+  mpfr_cos(cos_th2, *th2, MPFR_RNDN);
+
+  mpfr_mul_d(p_energy, cos_th1, L1, MPFR_RNDN); 
+  mpfr_mul_d(temp, cos_th2, L2, MPFR_RNDN);
+  mpfr_add(p_energy, p_energy, temp, MPFR_RNDN);
+  mpfr_mul_d(p_energy, p_energy, -G, MPFR_RNDN);
+
+  //KE
+  mpfr_mul(temp, *w1, *w1, MPFR_RNDN);
+  mpfr_mul_d(temp, temp, L1, MPFR_RNDN);
+  mpfr_mul_d(temp, temp, L1, MPFR_RNDN);
+
+  mpfr_mul(temp2, *w2, *w2, MPFR_RNDN);
+  mpfr_mul_d(temp2, temp2, L2, MPFR_RNDN);
+  mpfr_mul_d(temp2, temp2, L2, MPFR_RNDN);
+
+  mpfr_add(temp, temp, temp2, MPFR_RNDN);
+  mpfr_mul_d(temp, temp, half, MPFR_RNDN);
+  
+  mpfr_mul(temp2, *w1, *w2, MPFR_RNDN);
+  mpfr_mul_d(temp2, temp2, L1, MPFR_RNDN);
+  mpfr_mul_d(temp2, temp2, L2, MPFR_RNDN);
+  mpfr_sub(del, *th1, *th2, MPFR_RNDN);
+  mpfr_cos(cos_del, del, MPFR_RNDN); 
+  mpfr_mul(temp2, temp2, cos_del, MPFR_RNDN);
+
+  mpfr_add(k_energy, temp, temp2, MPFR_RNDN);
+  mpfr_mul(k_energy, temp, -p_energy, MPFR_RNDN);
+
+  mpfr_add(t_energy, p_energy, k_energy, MPFR_RNDN);
+
+  mpfr_fprintf(file, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
+               t, p_energy, k_energy, t_energy); 
+
+  
+}
+
+

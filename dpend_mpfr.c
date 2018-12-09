@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
   { 
     mpfr_add(t_next, t_curr, h, MPFR_RNDN); // update time
     runge_kutta(t_curr, &yin, &yout, h);    // preform runge kutta
-          t_next, yout.th1, yout.w1, yout.th2, yout.w2); 
+   
 
     //print
     output_polar(polar_output, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2);

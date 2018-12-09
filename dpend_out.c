@@ -47,13 +47,13 @@ void output_cartesian(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1,
   mpfr_add(y2, y2, y1, MPFR_RNDN);
 
   mpfr_fprintf(file, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
-               t, x1, y1, x2, y2); 
+               *t, x1, y1, x2, y2); 
 }
 
-output_energy(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mpfr_t* th2, mpfr_t* w2, double L1, double L2, double G){
+void output_energy(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mpfr_t* th2, mpfr_t* w2, double L1, double L2, double G){
   
   mpfr_t p_energy, k_energy, t_energy, temp, temp2, cos_th1, cos_th2, del, cos_del;
-  mpfr_inits2(nbits, p_energy, k_energy, t_energy, temp, cos_th1, cos_th2, del, cos_del, NULL);
+  mpfr_inits2(nbits, p_energy, k_energy, t_energy, temp, temp2, cos_th1, cos_th2, del, cos_del, NULL);
   double half = 0.5;
   double neg = -1.0;
 
@@ -93,7 +93,7 @@ output_energy(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mpfr_t*
   mpfr_add(t_energy, p_energy, k_energy, MPFR_RNDN);
 
   mpfr_fprintf(file, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
-               t, p_energy, k_energy, t_energy); 
+               *t, p_energy, k_energy, t_energy); 
 
   
 }

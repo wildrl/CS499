@@ -48,7 +48,7 @@
 #define M1 1.0 /* mass of pendulum 1 in kg */
 #define M2 1.0 /* mass of pendulum 2 in kg */
 
-size_t nbits;
+int nbits;
 
 typedef mpfr_t seconds_t;  // seconds_t because linux has its own time_t
 typedef mpfr_t angle_t;
@@ -134,8 +134,8 @@ int main(int argc, char *argv[])
   mpfr_clears(TMIN, TMAX, TH10, W10, TH20, W20, radian_conv, NULL);
 
   //print initial values
-  output_polar(polar_output, &t_curr,  &yout.th1, &yout.w1, &yout.th2, &yout.w2);
-  output_cartesian(cartesian_output, nbits, &t_curr, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2);
+  output_polar(polar_output, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2);
+  output_cartesian(cartesian_output, nbits, &t_curr, &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2);
 
 
   /* perform the integration */
@@ -158,8 +158,7 @@ int main(int argc, char *argv[])
     mpfr_set(yin.w1, yout.w1, MPFR_RNDN);
     mpfr_set(yin.th2, yout.th2, MPFR_RNDN);
     mpfr_set(yin.w2, yout.w2, MPFR_RNDN);
-  
-    mpfr_set(t_curr, t_next, MPFR_RNDN);
+     mpfr_set(t_curr, t_next, MPFR_RNDN);
   }
 
   /* Clean up. */

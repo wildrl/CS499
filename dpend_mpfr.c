@@ -68,7 +68,7 @@ FILE *energy_output;
 void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h);
 void derivs(y_t *yin, y_t *dydx);
 
-void reset_yin_adj(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in)
+void reset_yin_adj(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in);
 void lyapunov(mpfr_t *sum, mpfr_t *d0, mpfr_t *d1);
 void calc_di(mpfr_t *di, y_t *y0, y_t *y1);
 
@@ -201,9 +201,12 @@ int main(int argc, char *argv[])
 
   double c = 1/nbits;
   mpfr_div_d(exp, sum, c, MPFR_RNDN);
+  printf("The lyapunov Exponent is: ");
+  mpfr_dump(exp);
   mpfr_printf("The Lyapunov Exponent is: %.128R\n", exp);
   
 
+  mpfr_clears(yin_adj.th1, yin_adj.w1, yin_adj.th2, yin_adj.w2, yout_adj.th1, yout_adj.w1, yout_adj.th2, yout_adj.w2, d0, di, sum, delta, exp, NULL);
 
   /* Clean up. */
   mpfr_clears(h, t_curr, t_next, yin.th1, yin.w1, yin.th2, yin.w2,
@@ -457,6 +460,8 @@ void lyapunov(mpfr_t *sum, mpfr_t *d0, mpfr_t *d1) {
   mpfr_log2(temp, temp, MPFR_RNDN);
 
   mpfr_add(*sum, *sum, temp, MPFR_RNDN);
+
+  mpfr_clears(temp, NULL);
 }
 
 
@@ -466,7 +471,7 @@ void calc_di(mpfr_t *di, y_t *y0, y_t *y1) {
   
   mpfr_dim(temp, y0->th1, y1->th1, MPFR_RNDN);
   mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_set(*di, temp, y0->th1, MPFR_RNDN);
+  mpfr_add(*di, temp, y0->th1, MPFR_RNDN);
 
   mpfr_dim(temp, y0->w1, y1->w1, MPFR_RNDN);
   mpfr_sqr(temp, temp, MPFR_RNDN);
@@ -481,7 +486,6 @@ void calc_di(mpfr_t *di, y_t *y0, y_t *y1) {
   mpfr_add(*di, temp, y0->w2, MPFR_RNDN);
 
   mpfr_clear(temp);
-  mpfr_free_cache();
 }
 
 void reset_yin_adj(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in) {
@@ -506,7 +510,7 @@ void reset_yin_adj(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in) {
   mpfr_mul(y1_in->w2, y1_in->w2, d, MPFR_RNDN);
   mpfr_add(y1_in->w2, y1_in->w2, y0->w2, MPFR_RNDN);
 
-  
+  mpfr_clears(temp, d, NULL);
 }
 
 

@@ -68,6 +68,10 @@ FILE *energy_output;
 void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h);
 void derivs(y_t *yin, y_t *dydx);
 
+void reset_yin_adj(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in)
+void lyapunov(mpfr_t *sum, mpfr_t *d0, mpfr_t *d1);
+void calc_di(mpfr_t *di, y_t *y0, y_t *y1);
+
 int main(int argc, char *argv[])
 {
   unsigned int i = 0, NSTEP;
@@ -173,7 +177,7 @@ int main(int argc, char *argv[])
    
 
     calc_di(&di, &yout, &yout_adj);
-    lyapunov(&sum, &d0, &di)
+    lyapunov(&sum, &d0, &di);
     reset_yin_adj(&d0, &di, &yout, &yout_adj, &yin_adj);
 
 
@@ -462,25 +466,25 @@ void calc_di(mpfr_t *di, y_t *y0, y_t *y1) {
   
   mpfr_dim(temp, y0->th1, y1->th1, MPFR_RNDN);
   mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_set(*di, temp, MPFR_RNDN);
+  mpfr_set(*di, temp, y0->th1, MPFR_RNDN);
 
   mpfr_dim(temp, y0->w1, y1->w1, MPFR_RNDN);
   mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_add(*di, temp, MPFR_RNDN);
+  mpfr_add(*di, temp, y0->w1, MPFR_RNDN);
 
   mpfr_dim(temp, y0->th2, y1->th2, MPFR_RNDN);
   mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_add(*di, temp, MPFR_RNDN);
+  mpfr_add(*di, temp, y0->th2, MPFR_RNDN);
 
   mpfr_dim(temp, y0->w2, y1->w2, MPFR_RNDN);
   mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_add(*di, temp, MPFR_RNDN);
+  mpfr_add(*di, temp, y0->w2, MPFR_RNDN);
 
   mpfr_clear(temp);
   mpfr_free_cache();
 }
 
-void reset_yin_adj(mpfr_t *d0, mpfr_t *di, mpfr_t *y0, mpfr_t *y1_out, mpfr_t *y1_in) {
+void reset_yin_adj(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in) {
   mpfr_t temp, d;
   mpfr_inits2(nbits, temp, d, NULL);
 

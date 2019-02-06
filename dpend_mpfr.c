@@ -155,18 +155,23 @@ int main(int argc, char *argv[])
 
   // pick a point that is d0 away from the initial condition
   mpfr_div_si(delta, d0, 2, MPFR_RNDN);
+
   mpfr_add(yin_adj.th1, yin.th1, delta, MPFR_RNDN);
   mpfr_add(yin_adj.w1, yin.w1, delta, MPFR_RNDN);
   mpfr_add(yin_adj.th2, yin.th2, delta, MPFR_RNDN);
   mpfr_add(yin_adj.w2, yin.w2, delta, MPFR_RNDN);
+ 
 
-  
+//   mpfr_set(yin_adj.th1, yin.th1, MPFR_RNDN);
+//   mpfr_set(yin_adj.w1, yin.w1, MPFR_RNDN);
+//   mpfr_set(yin_adj.w2, yin.w2, MPFR_RNDN); 
+//   mpfr_add_d(yin_adj.th2, yin.th2, .001, MPFR_RNDN);
   // *****************************************
 
   //print initial values
   output_polar(polar_output, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2);
-  output_cartesian(cartesian_output, nbits, &t_curr, &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2);
-  output_energy(energy_output, nbits, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2, G);
+//  output_cartesian(cartesian_output, nbits, &t_curr, &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2);
+//  output_energy(energy_output, nbits, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2, G);
 
   /* perform the integration */
   for (i = 0; i < NSTEP - 1; i++)
@@ -174,13 +179,12 @@ int main(int argc, char *argv[])
     mpfr_add(t_next, t_curr, h, MPFR_RNDN); // update time
     runge_kutta(t_curr, &yin, &yout, h);    // preform runge kutta 
     runge_kutta(t_curr, &yin_adj, &yout_adj, h);    // preform runge kutta on adjusted IC
-   
 
     calc_di(&di, &yout, &yout_adj);
     lyapunov(&sum, &d0, &di);
     reset_yin_adj(&d0, &di, &yout, &yout_adj, &yin_adj);
 
-
+//mpfr_printf("i=%d: d0=%.24Rf  di=%.24Rf\n", i, d0, di);
 
     //print
     output_polar(polar_output, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2);
@@ -194,16 +198,18 @@ int main(int argc, char *argv[])
     mpfr_set(yin.w2, yout.w2, MPFR_RNDN);
     mpfr_set(t_curr, t_next, MPFR_RNDN);
 
-    calc_di(&di, &yin, &yin_adj);
-    int distance = mpfr_cmp(di, d0);
-    if (distance != 0) printf("BAD IC\n");
+    calc_di(&d0, &yin, &yin_adj);
+  //  if (mpfr_cmp(di, d0) != 0) {mpfr_printf("i=%d:  BAD IC d0 = %.24Rf  di = %.24Rf\n", i, d0, di); }
+//    else { printf("GOOD IC i=%d\n",i); }
   }
 
-  double c = 1/nbits;
-  mpfr_div_d(exp, sum, c, MPFR_RNDN);
-  printf("The lyapunov Exponent is: ");
-  mpfr_dump(exp);
-  mpfr_printf("The Lyapunov Exponent is: %.128R\n", exp);
+  double c = 1.0/((double) NSTEP);
+
+  mpfr_set_d(exp, c, MPFR_RNDN);
+  mpfr_div(exp, exp, h, MPFR_RNDN);
+  mpfr_mul(exp, exp, sum, MPFR_RNDN);
+
+  mpfr_printf("The Lyapunov Exponent is: %.24Rf\n", exp);
   
 
   mpfr_clears(yin_adj.th1, yin_adj.w1, yin_adj.th2, yin_adj.w2, yout_adj.th1, yout_adj.w1, yout_adj.th2, yout_adj.w2, d0, di, sum, delta, exp, NULL);
@@ -451,13 +457,12 @@ void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h)
   return;
 }
 
-void lyapunov(mpfr_t *sum, mpfr_t *d0, mpfr_t *d1) {
+void lyapunov(mpfr_t *sum, mpfr_t *d0, mpfr_t *di) {
   mpfr_t temp;
   mpfr_init2(temp, nbits);
 
-  mpfr_div(temp, *d1, *d0, MPFR_RNDN);
-  mpfr_abs(temp, temp, MPFR_RNDN);
-  mpfr_log2(temp, temp, MPFR_RNDN);
+  mpfr_div(temp, *di, *d0, MPFR_RNDN);
+  mpfr_log(temp, temp, MPFR_RNDN);
 
   mpfr_add(*sum, *sum, temp, MPFR_RNDN);
 
@@ -467,32 +472,36 @@ void lyapunov(mpfr_t *sum, mpfr_t *d0, mpfr_t *d1) {
 
 void calc_di(mpfr_t *di, y_t *y0, y_t *y1) {
   mpfr_t temp;
-  mpfr_init2(temp, nbits);
+  mpfr_init_set_d(temp, 0.0, nbits);
   
-  mpfr_dim(temp, y0->th1, y1->th1, MPFR_RNDN);
+  mpfr_sub(temp, y0->th1, y1->th1, MPFR_RNDN);
   mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_add(*di, temp, y0->th1, MPFR_RNDN);
+  mpfr_set(*di, temp, MPFR_RNDN);
 
-  mpfr_dim(temp, y0->w1, y1->w1, MPFR_RNDN);
+  mpfr_sub(temp, y0->w1, y1->w1, MPFR_RNDN);
   mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_add(*di, temp, y0->w1, MPFR_RNDN);
+  mpfr_add(*di, *di, temp, MPFR_RNDN);
 
-  mpfr_dim(temp, y0->th2, y1->th2, MPFR_RNDN);
+  mpfr_sub(temp, y0->th2, y1->th2, MPFR_RNDN);
   mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_add(*di, temp, y0->th2, MPFR_RNDN);
+  mpfr_add(*di, *di, temp, MPFR_RNDN);
 
-  mpfr_dim(temp, y0->w2, y1->w2, MPFR_RNDN);
+  mpfr_sub(temp, y0->w2, y1->w2, MPFR_RNDN);
   mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_add(*di, temp, y0->w2, MPFR_RNDN);
+  mpfr_add(*di, *di, temp, MPFR_RNDN);
+
+  mpfr_sqrt(*di, *di, MPFR_RNDN);
 
   mpfr_clear(temp);
 }
 
 void reset_yin_adj(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in) {
   mpfr_t temp, d;
-  mpfr_inits2(nbits, temp, d, NULL);
+  mpfr_init_set_d(temp, 0.0, nbits);
+  mpfr_init_set_d(d, 0.0, nbits);
+//mpfr_inits2(nbits, temp, d, NULL);
 
-  mpfr_div(d, *di, *d0, MPFR_RNDN);
+  mpfr_div(d, *d0, *di, MPFR_RNDN);
   
   mpfr_sub(y1_in->th1, y1_out->th1, y0->th1, MPFR_RNDN);
   mpfr_mul(y1_in->th1, y1_in->th1, d, MPFR_RNDN);

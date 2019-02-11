@@ -23,7 +23,6 @@
 
 /* hardwired parameters */
 
-#define PI 3.14159265
 #define N 4 /* number of equations to be solved */
 #define G 9.8 /* acc'n due to gravity, in m/s^2 */
 #define L1 1.0 /* length of pendulum 1 in m */
@@ -43,6 +42,7 @@ typedef struct {
 FILE *polar_output;
 FILE *cartesian_output;
 FILE *energy_output;
+FILE *ly_exp_output;
 
 void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h);
 void derivs(y_t *yin, y_t *dydx);
@@ -59,14 +59,17 @@ int main(int argc, char *argv[])
 
   /* Create output files. */
   char polar_fn[30];
-  char cartesian_fn[30];
-  char energy_fn[30];
-  snprintf(polar_fn, 30, "./mpfr_data/polar%s.txt", argv[8]);
-  snprintf(cartesian_fn, 30, "./mpfr_data/cartesian%s.txt", argv[8]);
-  snprintf(energy_fn, 30, "./mpfr_data/energy%s.txt", argv[8]);
-  polar_output = fopen(polar_fn, "w");
-  cartesian_output = fopen(cartesian_fn, "w");
-  energy_output = fopen(energy_fn, "w");
+  char ly_exp_fn[30];
+  //char cartesian_fn[30];
+  //char energy_fn[30];
+  snprintf(polar_fn, 30, "./mpfr_data/polar%s.csv", argv[8]);
+  snprintf(ly_exp_fn, 30, "./mpfr_data/ly_exp%s.csv", argv[8]);
+  //snprintf(cartesian_fn, 30, "./mpfr_data/cartesian%s.csv", argv[8]);
+  //snprintf(energy_fn, 30, "./mpfr_data/energy%s.csv", argv[8]);
+  polar_output = fopen(polar_fn, "w");  
+  ly_exp_output = fopen(polar_fn, "w");
+  //cartesian_output = fopen(cartesian_fn, "w");
+  //energy_output = fopen(energy_fn, "w");
 
   mpfr_t h, TMIN, TMAX, t_curr, t_next, TH10, W10, TH20, W20;
   mpfr_inits2(nbits, h, TMIN, TMAX, t_curr, t_next, TH10, W10, TH20, W20, NULL);
@@ -131,7 +134,7 @@ int main(int argc, char *argv[])
 //   mpfr_set(yin_adj.w1, yin.w1, MPFR_RNDN);
 //   mpfr_set(yin_adj.w2, yin.w2, MPFR_RNDN); 
 //   mpfr_add_d(yin_adj.th2, yin.th2, .001, MPFR_RNDN);
- 
+  double c;
  // *****************************************
 
   // print initial values
@@ -155,6 +158,15 @@ int main(int argc, char *argv[])
 //  output_cartesian(cartesian_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2);
 //  output_energy(energy_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2, G);
 
+    if (i%10 == 0) {
+      c = 1.0/(double) i;
+      mpfr_set_d(exp, c, MPFR_RNDN);
+      mpfr_div(exp, exp, h, MPFR_RNDN);
+      mpfr_mul(exp, exp, sum, MPFR_RNDN);
+
+      output_lyapunov(ly_exp_output, &t_next, &exp);
+    }
+
     /* Set yin to yout. */
     mpfr_set(yin.th1, yout.th1, MPFR_RNDN);
     mpfr_set(yin.w1, yout.w1, MPFR_RNDN);
@@ -167,7 +179,7 @@ int main(int argc, char *argv[])
 //  else { printf("GOOD IC i=%d\n",i); }
   }
 
-  double c = 1.0/((double) NSTEP);
+  c = 1.0/((double) NSTEP);
 
   mpfr_set_d(exp, c, MPFR_RNDN);
   mpfr_div(exp, exp, h, MPFR_RNDN);

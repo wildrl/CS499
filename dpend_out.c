@@ -13,8 +13,14 @@
 
 void output_polar(FILE *file, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mpfr_t* th2, mpfr_t* w2) 
 {
-  mpfr_fprintf(file, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
+  mpfr_fprintf(file, "%0.32RNf,%0.32RNf,%0.32RNF,%0.32RNF,%0.32RNF\n", 
               *t, *th1, *w1, *th2, *w2);
+}
+
+void output_lyapunov(FILE *file, mpfr_t* t, mpfr_t* exp) 
+{
+  mpfr_fprintf(file, "%0.32RNf,%0.32RNf\n", 
+              *t, *exp);
 }
 
 void output_cartesian(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mpfr_t* th2, mpfr_t* w2, double L1, double L2) 
@@ -46,7 +52,7 @@ void output_cartesian(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1,
   mpfr_mul(y2, y2, temp, MPFR_RNDN);
   mpfr_add(y2, y2, y1, MPFR_RNDN);
 
-  mpfr_fprintf(file, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF %0.32RNF\n", 
+  mpfr_fprintf(file, "%0.32RNf,%0.32RNf,%0.32RNF,%0.32RNF,%0.32RNF\n", 
                *t, x1, y1, x2, y2); 
 }
 
@@ -104,7 +110,7 @@ void output_energy(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mp
   //total energy
   mpfr_add(t_energy, p_energy, k_energy, MPFR_RNDN);
 
-  mpfr_fprintf(file, "%0.32RNf %0.32RNf %0.32RNF %0.32RNF\n", 
+  mpfr_fprintf(file, "%0.32RNf,%0.32RNf,%0.32RNF,%0.32RNF\n", 
                *t, p_energy, k_energy, t_energy); 
 
   

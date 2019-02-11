@@ -44,7 +44,7 @@ FILE *cartesian_output;
 FILE *energy_output;
 FILE *ly_exp_output;
 
-void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h);
+void runge_kutta(mpfr_t t, y_t *yin, y_t *yout, mpfr_t h);
 void derivs(y_t *yin, y_t *dydx);
 void reset_yin_adj(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in);
 void lyapunov(mpfr_t *sum, mpfr_t *d0, mpfr_t *d1);
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
   /* Clean up. */
   mpfr_clears(yin_adj.th1, yin_adj.w1, yin_adj.th2, yin_adj.w2, 
 		yout_adj.th1, yout_adj.w1, yout_adj.th2, yout_adj.w2,
-		d0, di, sum, delta, exp, NULL);/
+		d0, di, sum, delta, exp, NULL);
   mpfr_clears(h, t_curr, t_next, yin.th1, yin.w1, yin.th2, yin.w2,
 		yout.th1, yout.w1, yout.th2, yout.w2, NULL);
   mpfr_free_cache();
@@ -300,7 +300,7 @@ void derivs(y_t *yin, y_t *dydx)
 
 }
 
-void runge_kutta(seconds_t t, y_t *yin, y_t *yout, seconds_t h)
+void runge_kutta(mpfr_t t, y_t *yin, y_t *yout, mpfr_t h)
 {
   /* fourth order Runge-Kutta - see e.g. Numerical Recipes */
  

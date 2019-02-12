@@ -44,6 +44,8 @@ FILE *cartesian_output;
 FILE *energy_output;
 FILE *ly_exp_output;
 
+FILE *final_exp_output;
+
 void runge_kutta(mpfr_t t, y_t *yin, y_t *yout, mpfr_t h);
 void derivs(y_t *yin, y_t *dydx);
 void reset_yin_adj(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in);
@@ -68,6 +70,8 @@ int main(int argc, char *argv[])
   //snprintf(energy_fn, 30, "./mpfr_data/energy%s.csv", argv[8]);
   polar_output = fopen(polar_fn, "w");  
   ly_exp_output = fopen(ly_exp_fn, "w");
+  final_exp_output = fopen("./mpfr_data/final_exp.csv", "w");
+  fseek(final_exp_output, 0, SEEK_END);
   //cartesian_output = fopen(cartesian_fn, "w");
   //energy_output = fopen(energy_fn, "w");
 
@@ -186,7 +190,8 @@ int main(int argc, char *argv[])
   mpfr_mul(exp, exp, sum, MPFR_RNDN);
 
   mpfr_printf("Lyapunov Exponent: %.24Rf\n", exp);
-  
+  mpfr_fprintf(final_exp_output, "%s,%s,%s,%s,%s,%s,%s,%s,%0.32RNF\n", 
+              argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8],exp);
 
   /* Clean up. */
   mpfr_clears(yin_adj.th1, yin_adj.w1, yin_adj.th2, yin_adj.w2, 
@@ -199,6 +204,7 @@ int main(int argc, char *argv[])
   /* Close files. */
   fclose(polar_output);
   fclose(ly_exp_output);
+  fclose(final_exp_output);
   //fclose(cartesian_output);
   //fclose(energy_output);
 

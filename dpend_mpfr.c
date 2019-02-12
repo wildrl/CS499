@@ -70,8 +70,8 @@ int main(int argc, char *argv[])
   //snprintf(energy_fn, 30, "./mpfr_data/energy%s.csv", argv[8]);
   polar_output = fopen(polar_fn, "w");  
   ly_exp_output = fopen(ly_exp_fn, "w");
-  final_exp_output = fopen("./mpfr_data/final_exp.csv", "w");
-  fseek(final_exp_output, 0, SEEK_END);
+  final_exp_output = fopen("./mpfr_data/final_exp.csv", "a");
+ // fseek(final_exp_output, 0, SEEK_END);
   //cartesian_output = fopen(cartesian_fn, "w");
   //energy_output = fopen(energy_fn, "w");
 

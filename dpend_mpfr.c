@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   //snprintf(cartesian_fn, 30, "./mpfr_data/cartesian%s.csv", argv[8]);
   //snprintf(energy_fn, 30, "./mpfr_data/energy%s.csv", argv[8]);
   polar_output = fopen(polar_fn, "w");  
-  ly_exp_output = fopen(polar_fn, "w");
+  ly_exp_output = fopen(ly_exp_fn, "w");
   //cartesian_output = fopen(cartesian_fn, "w");
   //energy_output = fopen(energy_fn, "w");
 
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
 //  output_cartesian(cartesian_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2);
 //  output_energy(energy_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2, G);
 
-    if (i%10 == 0) {
+    if (i != 0 && i%10 == 0) {
       c = 1.0/(double) i;
       mpfr_set_d(exp, c, MPFR_RNDN);
       mpfr_div(exp, exp, h, MPFR_RNDN);
@@ -198,8 +198,9 @@ int main(int argc, char *argv[])
 
   /* Close files. */
   fclose(polar_output);
-  fclose(cartesian_output);
-  fclose(energy_output);
+  fclose(ly_exp_output);
+  //fclose(cartesian_output);
+  //fclose(energy_output);
 
   return 0;
 }
@@ -208,9 +209,7 @@ int main(int argc, char *argv[])
 void derivs(y_t *yin, y_t *dydx)
 {
   mpfr_t num1, den1, num2, den2, temp1, temp2;
-  mpfr_t const_mass_sum;
-  angle_t del, cos_del, sin_del, sin_cos_del, sin_th1, sin_th2;
-  velocity_t w1_sqr, w2_sqr;
+  mpfr_t const_mass_sum, del, cos_del, sin_del, sin_cos_del, sin_th1, sin_th2, w1_sqr, w2_sqr;
 
   // CALC: const_mass_sum = M1 + M2
   mpfr_init2(const_mass_sum, nbits);
@@ -496,7 +495,7 @@ void reset_yin_adj(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in) {
   mpfr_mul(y1_in->w2, y1_in->w2, d, MPFR_RNDN);
   mpfr_add(y1_in->w2, y1_in->w2, y0->w2, MPFR_RNDN);
 
-  mpfr_clears(temp, d, NULL);
+  mpfr_clears(d, NULL);
 }
 
 

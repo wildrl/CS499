@@ -20,6 +20,7 @@
 #include <gmp.h>
 #include <mpfr.h>
 #include "dpend_out.h"
+#include <dirent.h>
 
 /* hardwired parameters */
 
@@ -45,6 +46,7 @@ FILE *energy_output;
 FILE *ly_exp_output;
 
 FILE *final_exp_output;
+FILE *ic_record;
 
 void runge_kutta(mpfr_t t, y_t *yin, y_t *yout, mpfr_t h);
 void derivs(y_t *yin, y_t *dydx);
@@ -55,161 +57,193 @@ void calc_di(mpfr_t *di, y_t *y0, y_t *y1);
 int main(int argc, char *argv[])
 {
   unsigned int i = 0, NSTEP;
+  int mantissas[5] = {11,24,53,64,113};
 
-  /* Get percision from args before any initilizing. */
-  nbits = atoi(argv[8]);
+  /* Count number of files in mpfr_data in order to name the new file to be created. */
+  int file_count = 0;
+  DIR *dirp;
+  struct dirent *entry;
+    
+  dirp = opendir("./mpfr_data");
+  while ((entry = readdir(dirp)) != NULL) {
+    if (entry->d_type == DT_REG) { /* If the entry is a regular file */
+      file_count++;
+    }
+  }
+  closedir(dirp);
 
-  /* Create output files. */
-  char polar_fn[30];
-  char ly_exp_fn[30];
-  //char cartesian_fn[30];
-  //char energy_fn[30];
-  snprintf(polar_fn, 30, "./mpfr_data/polar%s.csv", argv[8]);
-  snprintf(ly_exp_fn, 30, "./mpfr_data/ly_exp%s.csv", argv[8]);
-  //snprintf(cartesian_fn, 30, "./mpfr_data/cartesian%s.csv", argv[8]);
-  //snprintf(energy_fn, 30, "./mpfr_data/energy%s.csv", argv[8]);
-  polar_output = fopen(polar_fn, "w");  
-  ly_exp_output = fopen(ly_exp_fn, "w");
+  /* Create directory to store output in. */
+  char dir_name[10];
+  snprintf(dir_name, 10, "./mpfr_data/ic_%d", count);
+  mkdir("dir_name", 0777);
+
+
   final_exp_output = fopen("./mpfr_data/final_exp.csv", "a");
- // fseek(final_exp_output, 0, SEEK_END);
-  //cartesian_output = fopen(cartesian_fn, "w");
-  //energy_output = fopen(energy_fn, "w");
 
-  mpfr_t h, TMIN, TMAX, t_curr, t_next, TH10, W10, TH20, W20;
-  mpfr_inits2(nbits, h, TMIN, TMAX, t_curr, t_next, TH10, W10, TH20, W20, NULL);
+  ic_record = fopen("./mpfr_data/ic_record.txt", "a");
+  fprintf(ic_record, "ic_%d    (%s, %s, %s, %s, %s, %s, %s)\n", count, argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]);
 
-  y_t yin, yout;
-  mpfr_inits2(nbits, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
 
-  /* obtain command line values */
-  mpfr_set_flt(TMIN, atof(argv[1]), MPFR_RNDN);
-  mpfr_set_flt(TMAX, atof(argv[2]), MPFR_RNDN);
-  mpfr_set_flt(TH10, atof(argv[3]), MPFR_RNDN);
-  mpfr_set_flt(W10, atof(argv[4]), MPFR_RNDN);
-  mpfr_set_flt(TH20, atof(argv[5]), MPFR_RNDN);
-  mpfr_set_flt(W20, atof(argv[6]), MPFR_RNDN);
-  NSTEP = atoi(argv[7]);
+  for (int i = 0; i < 5; i++) {
 
-  /* Calculate stepsize for integration */
-  mpfr_sub(h, TMAX, TMIN, MPFR_RNDN);
-  NSTEP--;
-  mpfr_div_ui(h, h, NSTEP, MPFR_RNDN);  //h = (TMAX - TMIN)/(NSTEP - 1.0)
-  NSTEP++;
+    nbits = mantissas[i];
 
-  /* Create constant for converting angles to radians. */
-  mpfr_t radian_conv;
-  mpfr_init2(radian_conv, nbits);
-  mpfr_const_pi(radian_conv, MPFR_RNDN);
-  mpfr_div_si(radian_conv, radian_conv, 180, MPFR_RNDN);
+    /* Create output files. */
+    char polar_fn[30];
+    char ly_exp_fn[30];
+    //char cartesian_fn[30];
+    //char energy_fn[30];
+    snprintf(polar_fn, 30, "./mpfr_data/polar%d.csv", nbits);
+    snprintf(ly_exp_fn, 30, "./mpfr_data/ly_exp%d.csv", nbits);
+    //snprintf(cartesian_fn, 30, "./mpfr_data/cartesian%s.csv", nbits);
+    //snprintf(energy_fn, 30, "./mpfr_data/energy%s.csv", nbits);
+    polar_output = fopen(polar_fn, "w");  
+    ly_exp_output = fopen(ly_exp_fn, "w");
+    //fseek(final_exp_output, 0, SEEK_END);
+    //cartesian_output = fopen(cartesian_fn, "w");
+    //energy_output = fopen(energy_fn, "w");
 
-  /* Set initial values converting angles to radians. */
-  mpfr_set(t_curr, TMIN, MPFR_RNDN);
-  mpfr_mul(yin.th1, TH10, radian_conv, MPFR_RNDN);  // th1[0] = TH10*PI/180.0;
-  mpfr_mul(yin.w1, W10, radian_conv, MPFR_RNDN);    // w1[0] = W10*PI/180.0;
-  mpfr_mul(yin.th2, TH20, radian_conv, MPFR_RNDN);  // th2[0] = TH20*PI/180.0;
-  mpfr_mul(yin.w2, W20, radian_conv, MPFR_RNDN);    // w2[0] = W20*PI/180.0; 
+    mpfr_t h, TMIN, TMAX, t_curr, t_next, TH10, W10, TH20, W20;
+    mpfr_inits2(nbits, h, TMIN, TMAX, t_curr, t_next, TH10, W10, TH20, W20, NULL);
 
-  /* Clean up. */
-  mpfr_clears(TMIN, TMAX, TH10, W10, TH20, W20, radian_conv, NULL);
+    y_t yin, yout;
+    mpfr_inits2(nbits, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
 
-  // *********** FOR LYAPUNOV EXP: ***********
-  y_t yin_adj, yout_adj;
-  mpfr_t d0, di, sum, delta, exp;
-  mpfr_inits2(nbits, yin_adj.th1, yin_adj.w1, yin_adj.th2, yin_adj.w2, yout_adj.th1, yout_adj.w1, yout_adj.th2, yout_adj.w2, NULL);
-  mpfr_inits2(nbits, d0, di, sum, delta, exp, NULL);
- 
-  mpfr_set_d(sum, 0.0, MPFR_RNDN);
-  int n = -nbits;
+    /* obtain command line values */
+    mpfr_set_flt(TMIN, atof(argv[1]), MPFR_RNDN);
+    mpfr_set_flt(TMAX, atof(argv[2]), MPFR_RNDN);
+    mpfr_set_flt(TH10, atof(argv[3]), MPFR_RNDN);
+    mpfr_set_flt(W10, atof(argv[4]), MPFR_RNDN);
+    mpfr_set_flt(TH20, atof(argv[5]), MPFR_RNDN);
+    mpfr_set_flt(W20, atof(argv[6]), MPFR_RNDN);
+    NSTEP = atoi(argv[7]);
 
-  // calc d0; square root of machine precision
-  mpfr_set_d(d0, 2.0, MPFR_RNDN);
-  mpfr_pow_si(d0, d0, n, MPFR_RNDN);
-  mpfr_sqrt(d0, d0, MPFR_RNDN);
+    /* Calculate stepsize for integration */
+    mpfr_sub(h, TMAX, TMIN, MPFR_RNDN);
+    NSTEP--;
+    mpfr_div_ui(h, h, NSTEP, MPFR_RNDN);  //h = (TMAX - TMIN)/(NSTEP - 1.0)
+    NSTEP++;
 
-  // pick a point that is d0 away from the initial condition
-  mpfr_div_si(delta, d0, 2, MPFR_RNDN);
+    /* Create constant for converting angles to radians. */
+    mpfr_t radian_conv;
+    mpfr_init2(radian_conv, nbits);
+    mpfr_const_pi(radian_conv, MPFR_RNDN);
+    mpfr_div_si(radian_conv, radian_conv, 180, MPFR_RNDN);
 
-  mpfr_add(yin_adj.th1, yin.th1, delta, MPFR_RNDN);
-  mpfr_add(yin_adj.w1, yin.w1, delta, MPFR_RNDN);
-  mpfr_add(yin_adj.th2, yin.th2, delta, MPFR_RNDN);
-  mpfr_add(yin_adj.w2, yin.w2, delta, MPFR_RNDN);
- 
-//   mpfr_set(yin_adj.th1, yin.th1, MPFR_RNDN);
-//   mpfr_set(yin_adj.w1, yin.w1, MPFR_RNDN);
-//   mpfr_set(yin_adj.w2, yin.w2, MPFR_RNDN); 
-//   mpfr_add_d(yin_adj.th2, yin.th2, .001, MPFR_RNDN);
-  double c;
- // *****************************************
+    /* Set initial values converting angles to radians. */
+    mpfr_set(t_curr, TMIN, MPFR_RNDN);
+    mpfr_mul(yin.th1, TH10, radian_conv, MPFR_RNDN);  // th1[0] = TH10*PI/180.0;
+    mpfr_mul(yin.w1, W10, radian_conv, MPFR_RNDN);    // w1[0] = W10*PI/180.0;
+    mpfr_mul(yin.th2, TH20, radian_conv, MPFR_RNDN);  // th2[0] = TH20*PI/180.0;
+    mpfr_mul(yin.w2, W20, radian_conv, MPFR_RNDN);    // w2[0] = W20*PI/180.0; 
 
-  // print initial values
-  output_polar(polar_output, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2);
-// output_cartesian(cartesian_output, nbits, &t_curr, &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2);
-// output_energy(energy_output, nbits, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2, G);
+    /* Clean up. */
+    mpfr_clears(TMIN, TMAX, TH10, W10, TH20, W20, radian_conv, NULL);
 
-  /* perform the integration */
-  for (i = 0; i < NSTEP - 1; i++)
-  { 
-    mpfr_add(t_next, t_curr, h, MPFR_RNDN);		// update time
-    runge_kutta(t_curr, &yin, &yout, h);    		// preform runge kutta 
-    runge_kutta(t_curr, &yin_adj, &yout_adj, h);	// preform runge kutta on adjusted IC
+    /* ********************** FOR LYAPUNOV EXP: ********************** */
+    y_t yin_adj, yout_adj;
+    mpfr_t d0, di, sum, delta, exp;
+    mpfr_inits2(nbits, yin_adj.th1, yin_adj.w1, yin_adj.th2, yin_adj.w2, yout_adj.th1, yout_adj.w1, yout_adj.th2, yout_adj.w2, NULL);
+    mpfr_inits2(nbits, d0, di, sum, delta, exp, NULL);
+   
+    mpfr_set_d(sum, 0.0, MPFR_RNDN);
+    int n = -nbits;
 
-    calc_di(&di, &yout, &yout_adj);
-    lyapunov(&sum, &d0, &di);
-    reset_yin_adj(&d0, &di, &yout, &yout_adj, &yin_adj);
+    // calc d0; square root of machine precision
+    mpfr_set_d(d0, 2.0, MPFR_RNDN);
+    mpfr_pow_si(d0, d0, n, MPFR_RNDN);
+    mpfr_sqrt(d0, d0, MPFR_RNDN);
 
-    /* Print output to files. */
-    output_polar(polar_output, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2);
-//  output_cartesian(cartesian_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2);
-//  output_energy(energy_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2, G);
+    // pick a point that is d0 away from the initial condition
+    mpfr_div_si(delta, d0, 2, MPFR_RNDN);
 
-    if (i != 0 && i%10 == 0) {
-      c = 1.0/(double) i;
-      mpfr_set_d(exp, c, MPFR_RNDN);
-      mpfr_div(exp, exp, h, MPFR_RNDN);
-      mpfr_mul(exp, exp, sum, MPFR_RNDN);
+    mpfr_add(yin_adj.th1, yin.th1, delta, MPFR_RNDN);
+    mpfr_add(yin_adj.w1, yin.w1, delta, MPFR_RNDN);
+    mpfr_add(yin_adj.th2, yin.th2, delta, MPFR_RNDN);
+    mpfr_add(yin_adj.w2, yin.w2, delta, MPFR_RNDN);
+    
+   
+    double c;
+    /* *************************************************************** */
 
-      output_lyapunov(ly_exp_output, &t_next, &exp);
+    /* Output initial values. */
+    output_polar(polar_output, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2);
+    //output_cartesian(cartesian_output, nbits, &t_curr, &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2);
+    //output_energy(energy_output, nbits, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2, G);
+
+    /* Perform the integration. */
+    for (i = 0; i < NSTEP - 1; i++) {
+
+      mpfr_add(t_next, t_curr, h, MPFR_RNDN);		// update time
+      runge_kutta(t_curr, &yin, &yout, h);    		// preform runge kutta 
+      runge_kutta(t_curr, &yin_adj, &yout_adj, h);	// preform runge kutta on adjusted IC
+
+      calc_di(&di, &yout, &yout_adj);
+      lyapunov(&sum, &d0, &di);
+      reset_yin_adj(&d0, &di, &yout, &yout_adj, &yin_adj);
+
+      /* Print output to files. */
+      output_polar(polar_output, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2);
+      //output_cartesian(cartesian_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2);
+      //output_energy(energy_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2, G);
+
+      if (i != 0 && i%10 == 0) {
+        c = 1.0/(double) i;
+        mpfr_set_d(exp, c, MPFR_RNDN);
+        mpfr_div(exp, exp, h, MPFR_RNDN);
+        mpfr_mul(exp, exp, sum, MPFR_RNDN);
+
+        output_lyapunov(ly_exp_output, &t_next, &exp);
+      }
+
+      /* Set yin to yout. */
+      mpfr_set(yin.th1, yout.th1, MPFR_RNDN);
+      mpfr_set(yin.w1, yout.w1, MPFR_RNDN);
+      mpfr_set(yin.th2, yout.th2, MPFR_RNDN);
+      mpfr_set(yin.w2, yout.w2, MPFR_RNDN);
+      mpfr_set(t_curr, t_next, MPFR_RNDN);
+
+      calc_di(&d0, &yin, &yin_adj);
+      //if (mpfr_cmp(di, d0) != 0) {mpfr_printf("i=%d:  BAD IC d0 = %.24Rf  di = %.24Rf\n", i, d0, di); }
+      //else { printf("GOOD IC i=%d\n",i); }
     }
 
-    /* Set yin to yout. */
-    mpfr_set(yin.th1, yout.th1, MPFR_RNDN);
-    mpfr_set(yin.w1, yout.w1, MPFR_RNDN);
-    mpfr_set(yin.th2, yout.th2, MPFR_RNDN);
-    mpfr_set(yin.w2, yout.w2, MPFR_RNDN);
-    mpfr_set(t_curr, t_next, MPFR_RNDN);
+    c = 1.0/((double) NSTEP);
 
-    calc_di(&d0, &yin, &yin_adj);
-//  if (mpfr_cmp(di, d0) != 0) {mpfr_printf("i=%d:  BAD IC d0 = %.24Rf  di = %.24Rf\n", i, d0, di); }
-//  else { printf("GOOD IC i=%d\n",i); }
+    mpfr_set_d(exp, c, MPFR_RNDN);
+    mpfr_div(exp, exp, h, MPFR_RNDN);
+    mpfr_mul(exp, exp, sum, MPFR_RNDN);
+
+    mpfr_printf("Lyapunov Exponent: %.24Rf\n", exp);
+    mpfr_fprintf(final_exp_output, "%s,%s,%s,%s,%s,%s,%s,%s,%0.32RNF\n", 
+                argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8],exp);
+
+    /* Clean up. */
+    mpfr_clears(yin_adj.th1, yin_adj.w1, yin_adj.th2, yin_adj.w2, 
+  		yout_adj.th1, yout_adj.w1, yout_adj.th2, yout_adj.w2,
+  		d0, di, sum, delta, exp, NULL);
+    mpfr_clears(h, t_curr, t_next, yin.th1, yin.w1, yin.th2, yin.w2,
+  		yout.th1, yout.w1, yout.th2, yout.w2, NULL);
+    mpfr_free_cache();
+
+    /* Close files. */
+    fclose(polar_output);
+    fclose(ly_exp_output);
+    //fclose(cartesian_output);
+    //fclose(energy_output);
   }
 
-  c = 1.0/((double) NSTEP);
-
-  mpfr_set_d(exp, c, MPFR_RNDN);
-  mpfr_div(exp, exp, h, MPFR_RNDN);
-  mpfr_mul(exp, exp, sum, MPFR_RNDN);
-
-  mpfr_printf("Lyapunov Exponent: %.24Rf\n", exp);
-  mpfr_fprintf(final_exp_output, "%s,%s,%s,%s,%s,%s,%s,%s,%0.32RNF\n", 
-              argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8],exp);
-
-  /* Clean up. */
-  mpfr_clears(yin_adj.th1, yin_adj.w1, yin_adj.th2, yin_adj.w2, 
-		yout_adj.th1, yout_adj.w1, yout_adj.th2, yout_adj.w2,
-		d0, di, sum, delta, exp, NULL);
-  mpfr_clears(h, t_curr, t_next, yin.th1, yin.w1, yin.th2, yin.w2,
-		yout.th1, yout.w1, yout.th2, yout.w2, NULL);
-  mpfr_free_cache();
-
   /* Close files. */
-  fclose(polar_output);
-  fclose(ly_exp_output);
   fclose(final_exp_output);
-  //fclose(cartesian_output);
-  //fclose(energy_output);
+  fclose(ic_record);
 
   return 0;
 }
+
+
+
+
+
 
 /* function to fill array of derivatives dydx at t */
 void derivs(y_t *yin, y_t *dydx)

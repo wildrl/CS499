@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     
   dirp = opendir("./mpfr_data");
   while ((entry = readdir(dirp)) != NULL) {
-    if (entry->d_type == DT_REG) { /* If the entry is a regular file */
+    if (entry->d_type == DT_DIR) { /* If the entry is a regular file */
       dir_count++;
     }
   }

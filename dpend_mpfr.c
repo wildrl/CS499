@@ -21,6 +21,8 @@
 #include <mpfr.h>
 #include "dpend_out.h"
 #include <dirent.h>
+#include <sys/stat.h>
+#include <errno.h>
 
 /* hardwired parameters */
 
@@ -56,51 +58,51 @@ void calc_di(mpfr_t *di, y_t *y0, y_t *y1);
 
 int main(int argc, char *argv[])
 {
-  unsigned int i = 0, NSTEP;
+  unsigned int NSTEP;
   int mantissas[5] = {11,24,53,64,113};
 
   /* Count number of files in mpfr_data in order to name the new file to be created. */
-  int file_count = 0;
+  int dir_count = 0;
   DIR *dirp;
   struct dirent *entry;
     
   dirp = opendir("./mpfr_data");
   while ((entry = readdir(dirp)) != NULL) {
     if (entry->d_type == DT_REG) { /* If the entry is a regular file */
-      file_count++;
+      dir_count++;
     }
   }
   closedir(dirp);
 
   /* Create directory to store output in. */
-  char dir_name[10];
-  snprintf(dir_name, 10, "./mpfr_data/ic_%d", count);
-  mkdir("dir_name", 0777);
+  char dir_name[30];
+  snprintf(dir_name, 30, "./mpfr_data/ic_%d", dir_count);
+  mkdir(dir_name, 0777);
 
 
   final_exp_output = fopen("./mpfr_data/final_exp.csv", "a");
 
   ic_record = fopen("./mpfr_data/ic_record.txt", "a");
-  fprintf(ic_record, "ic_%d    (%s, %s, %s, %s, %s, %s, %s)\n", count, argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]);
+  fprintf(ic_record, "ic_%d    (%s, %s, %s, %s, %s, %s, %s)\n", dir_count, argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
 
 
-  for (int i = 0; i < 5; i++) {
+  for (int j = 0; j < 5; j++) {
 
-    nbits = mantissas[i];
+    nbits = mantissas[j];
 
     /* Create output files. */
-    char polar_fn[30];
-    char ly_exp_fn[30];
-    //char cartesian_fn[30];
+    char polar_fn[50];
+    char ly_exp_fn[50];
+    char cartesian_fn[50];
     //char energy_fn[30];
-    snprintf(polar_fn, 30, "./mpfr_data/polar%d.csv", nbits);
-    snprintf(ly_exp_fn, 30, "./mpfr_data/ly_exp%d.csv", nbits);
-    //snprintf(cartesian_fn, 30, "./mpfr_data/cartesian%s.csv", nbits);
+    snprintf(polar_fn, 50, "%s/polar%d.csv", dir_name, nbits);
+    snprintf(ly_exp_fn, 50, "%s/ly_exp%d.csv", dir_name, nbits);
+    snprintf(cartesian_fn, 50, "%s/cartesian%d.txt", dir_name, nbits);
     //snprintf(energy_fn, 30, "./mpfr_data/energy%s.csv", nbits);
     polar_output = fopen(polar_fn, "w");  
     ly_exp_output = fopen(ly_exp_fn, "w");
     //fseek(final_exp_output, 0, SEEK_END);
-    //cartesian_output = fopen(cartesian_fn, "w");
+    cartesian_output = fopen(cartesian_fn, "w");
     //energy_output = fopen(energy_fn, "w");
 
     mpfr_t h, TMIN, TMAX, t_curr, t_next, TH10, W10, TH20, W20;
@@ -144,7 +146,7 @@ int main(int argc, char *argv[])
     y_t yin_adj, yout_adj;
     mpfr_t d0, di, sum, delta, exp;
     mpfr_inits2(nbits, yin_adj.th1, yin_adj.w1, yin_adj.th2, yin_adj.w2, yout_adj.th1, yout_adj.w1, yout_adj.th2, yout_adj.w2, NULL);
-    mpfr_inits2(nbits, d0, di, sum, delta, exp, NULL);
+    mpfr_inits2(53, d0, di, sum, delta, exp, NULL);
    
     mpfr_set_d(sum, 0.0, MPFR_RNDN);
     int n = -nbits;
@@ -168,11 +170,11 @@ int main(int argc, char *argv[])
 
     /* Output initial values. */
     output_polar(polar_output, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2);
-    //output_cartesian(cartesian_output, nbits, &t_curr, &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2);
+    output_cartesian(cartesian_output, nbits, &t_curr, &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2);
     //output_energy(energy_output, nbits, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2, G);
 
     /* Perform the integration. */
-    for (i = 0; i < NSTEP - 1; i++) {
+    for (int i = 0; i < NSTEP; i++) {
 
       mpfr_add(t_next, t_curr, h, MPFR_RNDN);		// update time
       runge_kutta(t_curr, &yin, &yout, h);    		// preform runge kutta 
@@ -184,7 +186,7 @@ int main(int argc, char *argv[])
 
       /* Print output to files. */
       output_polar(polar_output, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2);
-      //output_cartesian(cartesian_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2);
+      output_cartesian(cartesian_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2);
       //output_energy(energy_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2, G);
 
       if (i != 0 && i%10 == 0) {
@@ -215,8 +217,8 @@ int main(int argc, char *argv[])
     mpfr_mul(exp, exp, sum, MPFR_RNDN);
 
     mpfr_printf("Lyapunov Exponent: %.24Rf\n", exp);
-    mpfr_fprintf(final_exp_output, "%s,%s,%s,%s,%s,%s,%s,%s,%0.32RNF\n", 
-                argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8],exp);
+    mpfr_fprintf(final_exp_output, "%s,%s,%s,%s,%s,%s,%s,%0.32RNF\n", 
+                argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], exp);
 
     /* Clean up. */
     mpfr_clears(yin_adj.th1, yin_adj.w1, yin_adj.th2, yin_adj.w2, 
@@ -229,7 +231,7 @@ int main(int argc, char *argv[])
     /* Close files. */
     fclose(polar_output);
     fclose(ly_exp_output);
-    //fclose(cartesian_output);
+    fclose(cartesian_output);
     //fclose(energy_output);
   }
 
@@ -476,7 +478,7 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout, mpfr_t h)
 
 void lyapunov(mpfr_t *sum, mpfr_t *d0, mpfr_t *di) {
   mpfr_t temp;
-  mpfr_init2(temp, nbits);
+  mpfr_init2(temp, 53);
 
   mpfr_div(temp, *di, *d0, MPFR_RNDN);
   mpfr_log(temp, temp, MPFR_RNDN);
@@ -489,7 +491,7 @@ void lyapunov(mpfr_t *sum, mpfr_t *d0, mpfr_t *di) {
 
 void calc_di(mpfr_t *di, y_t *y0, y_t *y1) {
   mpfr_t temp;
-  mpfr_init_set_d(temp, 0.0, nbits);
+  mpfr_init_set_d(temp, 0.0, 53);
   
   mpfr_sub(temp, y0->th1, y1->th1, MPFR_RNDN);
   mpfr_sqr(temp, temp, MPFR_RNDN);
@@ -514,7 +516,7 @@ void calc_di(mpfr_t *di, y_t *y0, y_t *y1) {
 
 void reset_yin_adj(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in) {
   mpfr_t d;
-  mpfr_init_set_d(d, 0.0, nbits);
+  mpfr_init_set_d(d, 0.0, 53);
 //mpfr_inits2(nbits, temp, d, NULL);
 
   mpfr_div(d, *d0, *di, MPFR_RNDN);

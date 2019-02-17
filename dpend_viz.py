@@ -11,11 +11,11 @@ NSTEPS=0
 print(np.finfo(np.longdouble))
 print(np.finfo(np.float64))
 
-mpfr8_file = open("./mpfr_data/cartesian8.txt", "r")
-mpfr16_file = open("./mpfr_data/cartesian16.txt", "r")
-mpfr32_file = open("./mpfr_data/cartesian32.txt", "r")
-mpfr64_file = open("./mpfr_data/cartesian64.txt", "r")
-mpfr128_file = open("./mpfr_data/cartesian128.txt", "r")
+mpfr8_file = open("./mpfr_data/ic_2/cartesian11.txt", "r")
+mpfr16_file = open("./mpfr_data/ic_2/cartesian24.txt", "r")
+mpfr32_file = open("./mpfr_data/ic_2/cartesian53.txt", "r")
+mpfr64_file = open("./mpfr_data/ic_2/cartesian64.txt", "r")
+mpfr128_file = open("./mpfr_data/ic_2/cartesian113.txt", "r")
 
 t_8, t_16, t_32, t_64, t_128 = ([] for i in range(5))
 x1_8, x1_16, x1_32, x1_64, x1_128 = ([] for i in range(5))
@@ -24,7 +24,7 @@ x2_8, x2_16, x2_32, x2_64, x2_128 = ([] for i in range(5))
 y2_8, y2_16, y2_32, y2_64, y2_128 = ([] for i in range(5))
 
 for line in mpfr8_file.readlines():
-  step_data_8 = line.split(' ', 5)
+  step_data_8 = line.split(',', 5)
   t_8.append(np.float16(step_data_8[0]))
   x1_8.append(np.float16(step_data_8[1]))
   y1_8.append(np.float16(step_data_8[2]))
@@ -33,7 +33,7 @@ for line in mpfr8_file.readlines():
   NSTEPS+=1
 
 for line in mpfr16_file.readlines():
-  step_data_16 = line.split(' ', 5)
+  step_data_16 = line.split(',', 5)
   t_16.append(np.float16(step_data_16[0]))
   x1_16.append(np.float16(step_data_16[1]))
   y1_16.append(np.float16(step_data_16[2]))
@@ -41,7 +41,7 @@ for line in mpfr16_file.readlines():
   y2_16.append(np.float16(step_data_16[4]))
 
 for line in mpfr32_file.readlines():
-  step_data_32 = line.split(' ', 5)
+  step_data_32 = line.split(',', 5)
   t_32.append(np.float32(step_data_32[0]))
   x1_32.append(np.float32(step_data_32[1]))
   y1_32.append(np.float32(step_data_32[2]))
@@ -49,7 +49,7 @@ for line in mpfr32_file.readlines():
   y2_32.append(np.float32(step_data_32[4]))
 
 for line in mpfr64_file.readlines():
-  step_data_64 = line.split(' ', 5)
+  step_data_64 = line.split(',', 5)
   t_64.append(np.float64(step_data_64[0]))
   x1_64.append(np.float64(step_data_64[1]))
   y1_64.append(np.float64(step_data_64[2]))
@@ -57,7 +57,7 @@ for line in mpfr64_file.readlines():
   y2_64.append(np.float64(step_data_64[4]))
 
 for line in mpfr128_file.readlines():
-  step_data_128 = line.split(' ', 5)
+  step_data_128 = line.split(',', 5)
   t_128.append(np.longdouble(step_data_128[0]))
   x1_128.append(np.longdouble(step_data_128[1]))
   y1_128.append(np.longdouble(step_data_128[2]))
@@ -116,6 +116,6 @@ def animate(i):
     return line8, line16, line32, line64, line128, step_text #time_text
 
 ani = animation.FuncAnimation(fig, animate, np.arange(1, NSTEPS),
-                              interval=25, blit=True, init_func=init)
+                              interval=25, blit=False, init_func=init)
 
 plt.show()

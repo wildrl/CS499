@@ -269,7 +269,7 @@ void calc_di(mpfr_t *di, y_t *y0, y_t *y1) {
   mpfr_clear(temp);
 }
 
-void reset_yin_adj(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in) {
+void reset_yin_s(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in) {
   mpfr_t d;
   mpfr_init_set_d(d, 0.0, 53);
 

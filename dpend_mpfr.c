@@ -50,13 +50,13 @@ int main(int argc, char *argv[])
   mkdir(dir_name, 0777);
 
   /* Record the initial conditions for this execution. */
-  all_ics = fopen("./mpfr_data/ic_record.txt", "a");
+  all_ics = fopen("./mpfr_data/ic_records.txt", "a");
   fprintf(all_ics, "ic_%d    (%s, %s, %s, %s, %s, %s, %s)\n", 
           dir_count, argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
   fclose(all_ics);
 
   /* Open file to record final lyapunov exponents in for each run. */
-  all_ly_exps = fopen("./mpfr_data/final_exp.csv", "a");
+  final_lexp_output = fopen("./mpfr_data/final_lexp.csv", "a");
 
   // Preform Runga Kutta method to solve the dpend system for each mantissa size. */
   for (int j = 0; j < 5; j++) {
@@ -74,9 +74,9 @@ int main(int argc, char *argv[])
     cartesian_output = fopen(cartesian_fn, "w");
 
     /* Create output file for lypapunov exponent. */
-    char ly_exp_fn[50];
-    snprintf(ly_exp_fn, 50, "%s/ly_exp%d.csv", dir_name, nbits);
-    ly_exp_output = fopen(ly_exp_fn, "w");
+    char lexp_fn[50];
+    snprintf(lexp_fn, 50, "%s/lexp%d.csv", dir_name, nbits);
+    lexp_output = fopen(lexp_fn, "w");
 
     /* Create output file for energy values. */
     //char energy_fn[30];
@@ -147,9 +147,9 @@ int main(int argc, char *argv[])
     /* *************************************************************** */
 
     /* Output initial values. */
-    output_polar(polar_output, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2);
-    output_cartesian(cartesian_output, nbits, &t_curr, &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2);
-    //output_energy(energy_output, nbits, &t_curr,  &yin.th1, &yin.w1, &yin.th2, &yin.w2, L1, L2, G);
+    output_polar(&t_curr, &yin);
+    output_cartesian(&t_curr, &yin);
+    //output_energy(&t_curr,  &yin);
 
     /* Perform the integration. */
     for (int i = 0; i < NSTEP; i++) {
@@ -163,9 +163,9 @@ int main(int argc, char *argv[])
       reset_yin_s(&d0, &di, &yout, &yout_s, &yin_s);
 
       /* Print output to files. */
-      output_polar(polar_output, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2);
-      output_cartesian(cartesian_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2);
-      //output_energy(energy_output, nbits, &t_next, &yout.th1, &yout.w1, &yout.th2, &yout.w2, L1, L2, G);
+      output_polar(&t_next, &yout);
+      output_cartesian(&t_next, &yout);
+      //output_energy(&t_next, &yout);
 
       if (i != 0 && i%10 == 0) {
         c = 1.0/(double) i;
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
         mpfr_div(exp, exp, h, MPFR_RNDN);
         mpfr_mul(exp, exp, sum, MPFR_RNDN);
 
-        output_lyapunov(ly_exp_output, &t_next, &exp);
+        output_lyapunov(&t_next, &exp);
       }
 
       /* Set yin to yout. */
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
     mpfr_mul(exp, exp, sum, MPFR_RNDN);
 
     mpfr_printf("Lyapunov Exponent: %.24Rf\n", exp);
-    mpfr_fprintf(all_ly_exps, "%s,%s,%s,%s,%s,%s,%s,%0.32RNF\n", 
+    mpfr_fprintf(final_lexp_output, "%s,%s,%s,%s,%s,%s,%s,%0.32RNF\n", 
                 argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], exp);
 
     /* Clean up. */
@@ -206,13 +206,13 @@ int main(int argc, char *argv[])
 
     /* Close files. */
     fclose(polar_output);
-    fclose(ly_exp_output);
+    fclose(lexp_output);
     fclose(cartesian_output);
     //fclose(energy_output);
   }
 
   /* Close files. */
-  fclose(all_ly_exps);
+  fclose(final_lexp_output);
 
   return 0;
 }

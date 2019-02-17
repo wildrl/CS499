@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <gmp.h>
+#include<mpfr.h>
+
+
 #define N 4    /* number of equations to be solved */
 #define G 9.8  /* gravity (m/s^2) */
 #define L1 1.0 /* length of pendulum 1 (m) */
@@ -17,7 +22,7 @@ typedef struct {
 FILE *polar_output;
 FILE *cartesian_output;
 FILE *energy_output;
-FILE *all_ly_exps;
+FILE *lexp_output;
 
-FILE *final_exp_output;
+FILE *final_lexp_output;
 FILE *all_ics;

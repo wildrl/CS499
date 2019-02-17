@@ -1,3 +1,5 @@
+#include "dpend.h"
+
 /* Calculates the derivitive of yin and stores it in dydx. */
 void derivs(y_t *yin, y_t *dydx)
 {

@@ -19,7 +19,7 @@ void output_polar(mpfr_t* t, y_t* y)
 
 void output_lyapunov(mpfr_t* t, mpfr_t* exp) 
 {
-  mpfr_fprintf(all_ly_exps, "%0.32RNf,%0.32RNf\n", 
+  mpfr_fprintf(lexp_output, "%0.32RNf,%0.32RNf\n", 
               *t, *exp);
 }
 

@@ -1,4 +1,4 @@
-TARGETS=solve_dpend dpend_mpfr dpend_out dpend_out_hdr
+TARGETS=solve_dpend dpend_mpfr dpend_out dpend_math
 
 all: $(TARGETS)
 
@@ -11,9 +11,8 @@ mpfr: dpend_mpfr
 solve_dpend: solve_dpend.c
 	$(CC) -g -O3 -Wall -std=c99 -o $@ $< -lm
 
-dpend_mpfr: dpend_out.c dpend_mpfr.c
+dpend_mpfr: dpend_out.c dpend_math.c dpend_mpfr.c
 	$(CC) -g -O3 -Wall -std=c99 -D_BSD_SOURCE -o $@ $^ -lgmp -lmpfr
 
 clean:
 	rm -f $(TARGETS)
-

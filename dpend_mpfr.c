@@ -50,13 +50,13 @@ int main(int argc, char *argv[])
   mkdir(dir_name, 0777);
 
   /* Record the initial conditions for this execution. */
-  all_ics = fopen("./mpfr_data/ic_records.txt", "a");
-  fprintf(all_ics, "ic_%d    (%s, %s, %s, %s, %s, %s, %s)\n", 
+  all_ics = fopen("./mpfr_data/all_ics.txt", "a");
+  fprintf(all_ics, "ic_%d,%s,%s,%s,%s,%s,%s,%s\n", 
           dir_count, argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
   fclose(all_ics);
 
   /* Open file to record final lyapunov exponents in for each run. */
-  final_lexp_output = fopen("./mpfr_data/final_lexp.csv", "a");
+  final_lexp_output = fopen("./mpfr_data/final_lexps.csv", "a");
 
   // Preform Runga Kutta method to solve the dpend system for each mantissa size. */
   for (int j = 0; j < 5; j++) {
@@ -67,21 +67,25 @@ int main(int argc, char *argv[])
     char polar_fn[50];
     snprintf(polar_fn, 50, "%s/polar%d.csv", dir_name, nbits);
     polar_output = fopen(polar_fn, "w");
+    fprintf(polar_output, "time,th1,w1,th2,w2\n");
 
     /* Create output file for cartesian coordinates. */
     char cartesian_fn[50];
     snprintf(cartesian_fn, 50, "%s/cartesian%d.txt", dir_name, nbits);
     cartesian_output = fopen(cartesian_fn, "w");
+    fprintf(cartesian_output, "time,x1,y1,x2,y2\n");
 
     /* Create output file for lypapunov exponent. */
     char lexp_fn[50];
     snprintf(lexp_fn, 50, "%s/lexp%d.csv", dir_name, nbits);
     lexp_output = fopen(lexp_fn, "w");
+    fprintf(lexp_output, "time,lexp\n");
 
     /* Create output file for energy values. */
-    //char energy_fn[30];
-    //snprintf(energy_fn, 30, "./mpfr_data/energy%s.csv", nbits);
+    //char energy_fn[50];
+    //snprintf(energy_fn, 50, "%s/energy%d.csv", dir_name, nbits);
     //energy_output = fopen(energy_fn, "w");
+    //fprintf(energy_output, "time,KE,PE,Total\n");
 
     mpfr_t h, TMIN, TMAX, t_curr, t_next, TH10, W10, TH20, W20;
     mpfr_inits2(nbits, h, TMIN, TMAX, t_curr, t_next, TH10, W10, TH20, W20, NULL);
@@ -193,8 +197,7 @@ int main(int argc, char *argv[])
     mpfr_mul(exp, exp, sum, MPFR_RNDN);
 
     mpfr_printf("Lyapunov Exponent: %.24Rf\n", exp);
-    mpfr_fprintf(final_lexp_output, "%s,%s,%s,%s,%s,%s,%s,%0.32RNF\n", 
-                argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], exp);
+    mpfr_fprintf(final_lexp_output, "ic_%d,%0.32RF\n", dir_count, exp);
 
     /* Clean up. */
     mpfr_clears(yin_s.th1, yin_s.w1, yin_s.th2, yin_s.w2, 

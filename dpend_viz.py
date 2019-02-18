@@ -1,5 +1,6 @@
 import sys
 import matplotlib
+matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
@@ -11,11 +12,11 @@ NSTEPS=0
 print(np.finfo(np.longdouble))
 print(np.finfo(np.float64))
 
-mpfr8_file = open("./mpfr_data/ic_4/cartesian11.txt", "r")
-mpfr16_file = open("./mpfr_data/ic_4/cartesian24.txt", "r")
-mpfr32_file = open("./mpfr_data/ic_4/cartesian53.txt", "r")
-mpfr64_file = open("./mpfr_data/ic_4/cartesian64.txt", "r")
-mpfr128_file = open("./mpfr_data/ic_4/cartesian113.txt", "r")
+mpfr8_file = open("./mpfr_data/ic_15/cartesian11.txt", "r")
+mpfr16_file = open("./mpfr_data/ic_15/cartesian24.txt", "r")
+mpfr32_file = open("./mpfr_data/ic_15/cartesian53.txt", "r")
+mpfr64_file = open("./mpfr_data/ic_15/cartesian64.txt", "r")
+mpfr128_file = open("./mpfr_data/ic_15/cartesian113.txt", "r")
 
 t_8, t_16, t_32, t_64, t_128 = ([] for i in range(5))
 x1_8, x1_16, x1_32, x1_64, x1_128 = ([] for i in range(5))
@@ -116,6 +117,6 @@ def animate(i):
     return line8, line16, line32, line64, line128, step_text #time_text
 
 ani = animation.FuncAnimation(fig, animate, np.arange(1, NSTEPS),
-                              interval=25, blit=False, init_func=init)
+                              interval=25, blit=True, init_func=init)
 
 plt.show()

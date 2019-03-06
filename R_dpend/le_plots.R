@@ -1,127 +1,40 @@
-le_plot_ic3()
-le_plot_ic4()
-le_plot_ic5()
-le_plot_ic6()
-le_plot_ic7()
 
-le_plot_ic14()
-le_plot_ic15()
-le_plot_ic16()
+# IC 20: ic_20,0.0,50.0,180,0,-10,40,10000
+le_plot(ic20_lexp11, ic20_lexp24,ic20_lexp53,ic20_lexp64,ic20_lexp113, 
+        "ic20", nrow(ic20_lexp11), 8)
 
+# IC 23: ic_23,0.0,50.0,180,0,-10,40.001,10000
+le_plot(ic23_lexp11, ic23_lexp24,ic23_lexp53,ic23_lexp64,ic23_lexp113, 
+        "ic23", nrow(ic23_lexp11), 8)
 
+# IC 24: ic_24,0.0,50.0,180,0,-10,40.01,10000
+le_plot(ic24_lexp11, ic24_lexp24,ic24_lexp53,ic24_lexp64,ic24_lexp113, 
+        "ic24", nrow(ic24_lexp11), 8)
 
-#LEXP LINE PLOT: ic_3,0.0,10.0,180.45,0,16.25,0,4000
-le_plot_ic3 <- function() {
-  plot(1,type='n',xlim=c(1,400),ylim=c(0,5),xlab='time step', ylab='exp', main="ic_3")
-  
-  lines(`ic3_lexp11`$lexp, type='l', col="red", lwd=1.5)
-  lines(`ic3_lexp24`$lexp, type='l', col="orange", lwd=1.5)
-  lines(`ic3_lexp53`$lexp, type='l', col="yellow", lwd=1.5)
-  lines(`ic3_lexp64`$lexp, type='l', col="blue", lwd=1.5)
-  lines(`ic3_lexp113`$lexp, type='l', col="purple", lwd=1.5)
-  
-  legend(1, 5, legend=c("11", "24", "53", "64", "113"),
-         col=c("red", "orange", "yellow", "blue", "purple"), lty=1:1, cex=0.8)
-}
+# IC 25: ic_25,0.0,50.0,180,0,-10,40.1,10000
+le_plot(ic25_lexp11, ic25_lexp24,ic25_lexp53,ic25_lexp64,ic25_lexp113, 
+        "ic25", nrow(ic25_lexp11), 8)
 
-#LEXP LINE PLOT: ic_4,0.0,10.0,180.45,0,16.00,0,4000
-le_plot_ic4 <- function() {
-  plot(1,type='n',xlim=c(1,400),ylim=c(0,5),xlab='time step', ylab='exp', main="ic_4")
+#LEXP LINE PLOT
+le_plot <- function(d11,d24,d53,d64,d113, title, nrows, ymax) {
+  plot(1,type='n',xlim=c(1,nrows),ylim=c(0,ymax),xlab='time step', ylab='exp', main=title)
   
-  lines(`ic4_lexp11`$lexp, type='l', col="red", lwd=1.5)
-  lines(`ic4_lexp24`$lexp, type='l', col="orange", lwd=1.5)
-  lines(`ic4_lexp53`$lexp, type='l', col="yellow", lwd=1.5)
-  lines(`ic4_lexp64`$lexp, type='l', col="blue", lwd=1.5)
-  lines(`ic4_lexp113`$lexp, type='l', col="purple", lwd=1.5)
+  lines(d11$lexp, type='l', col="red", lwd=1.5)
+  lines(d24$lexp, type='l', col="orange", lwd=1.5)
+  lines(d53$lexp, type='l', col="green", lwd=1.5)
+  lines(d64$lexp, type='l', col="blue", lwd=1.5)
+  lines(d113$lexp, type='l', col="purple", lwd=1.5)
   
-  legend(1, 5, legend=c("11", "24", "53", "64", "113"),
-         col=c("red", "orange", "yellow", "blue", "purple"), lty=1:1, cex=0.8)
-}
-
-#LEXP LINE PLOT: ic_5,0.0,10.0,180.45,0,16.001,0,4000
-le_plot_ic5 <- function() {
-  plot(1,type='n',xlim=c(1,400),ylim=c(0,5),xlab='time step', ylab='exp', main="ic_5")
-  
-  lines(`ic5_lexp11`$lexp, type='l', col="red", lwd=1.5)
-  lines(`ic5_lexp24`$lexp, type='l', col="orange", lwd=1.5)
-  lines(`ic5_lexp53`$lexp, type='l', col="yellow", lwd=1.5)
-  lines(`ic5_lexp64`$lexp, type='l', col="blue", lwd=1.5)
-  lines(`ic5_lexp113`$lexp, type='l', col="purple", lwd=1.5)
-  
-  legend(1, 5, legend=c("11", "24", "53", "64", "113"),
-         col=c("red", "orange", "yellow", "blue", "purple"), lty=1:1, cex=0.8)
-}
-
-#LEXP LINE PLOT: ic_6,0.0,10.0,180.45,0,16.01,0,4000
-le_plot_ic6 <- function() {
-  plot(1,type='n',xlim=c(1,400),ylim=c(0,5),xlab='time step', ylab='exp', main="ic_6")
-  
-  lines(`ic6_lexp11`$lexp, type='l', col="red", lwd=1.5)
-  lines(`ic6_lexp24`$lexp, type='l', col="orange", lwd=1.5)
-  lines(`ic6_lexp53`$lexp, type='l', col="yellow", lwd=1.5)
-  lines(`ic6_lexp64`$lexp, type='l', col="blue", lwd=1.5)
-  lines(`ic6_lexp113`$lexp, type='l', col="purple", lwd=1.5) 
-  
-  legend(1, 5, legend=c("11", "24", "53", "64", "113"),
-         col=c("red", "orange", "yellow", "blue", "purple"), lty=1:1, cex=0.8)
-}
-
-#LEXP LINE PLOT: ic_7,0.0,10.0,180.45,0,16.1,0,4000
-le_plot_ic7 <- function() {
-  plot(1,type='n',xlim=c(1,400),ylim=c(0,5),xlab='time step', ylab='exp', main="ic_7")
-  
-  lines(`ic7_lexp11`$lexp, type='l', col="red", lwd=1.5)
-  lines(`ic7_lexp24`$lexp, type='l', col="orange", lwd=1.5)
-  lines(`ic7_lexp53`$lexp, type='l', col="yellow", lwd=1.5)
-  lines(`ic7_lexp64`$lexp, type='l', col="blue", lwd=1.5)
-  lines(`ic7_lexp113`$lexp, type='l', col="purple", lwd=1.5)
-  
-  legend(1, 5, legend=c("11", "24", "53", "64", "113"),
-         col=c("red", "orange", "yellow", "blue", "purple"), lty=1:1, cex=0.8)
-}
-
-#LEXP IC14
-le_plot_ic14 <- function() {
-  plot(1,type='n',xlim=c(1,200),ylim=c(0,8),xlab='time step', ylab='exp', main="ic_14")
-  
-  lines(`ic14_lexp11`$lexp, type='l', col="red", lwd=1.5)
-  lines(`ic14_lexp24`$lexp, type='l', col="orange", lwd=1.5)
-  lines(`ic14_lexp53`$lexp, type='l', col="yellow", lwd=1.5)
-  lines(`ic14_lexp64`$lexp, type='l', col="blue", lwd=1.5)
-  lines(`ic14_lexp113`$lexp, type='l', col="purple", lwd=1.5)
-  
-  legend(150, 7, legend=c("11", "24", "53", "64", "113"),
-         col=c("red", "orange", "yellow", "blue", "purple"), lty=1:1, cex=0.8)
+  legend("topright", legend=c("11", "24", "53", "64", "113"),
+         col=c("red", "orange", "green", "blue", "purple"), lty=1:1, cex=0.8)
 }
 
 
-#LEXP IC15
-le_plot_ic15 <- function() {
-  plot(1,type='n',xlim=c(1,200),ylim=c(0,8),xlab='time step', ylab='exp', main="ic_15")
-  
-  lines(`ic15_lexp11`$lexp, type='l', col="red", lwd=1.5)
-  lines(`ic15_lexp24`$lexp, type='l', col="orange", lwd=1.5)
-  lines(`ic15_lexp53`$lexp, type='l', col="yellow", lwd=1.5)
-  lines(`ic15_lexp64`$lexp, type='l', col="blue", lwd=1.5)
-  lines(`ic15_lexp113`$lexp, type='l', col="purple", lwd=1.5)
-  
-  legend(150, 7, legend=c("11", "24", "53", "64", "113"),
-         col=c("red", "orange", "yellow", "blue", "purple"), lty=1:1, cex=0.8)
-}
 
-#LEXP IC16
-le_plot_ic16 <- function() {
-  plot(1,type='n',xlim=c(1,200),ylim=c(0,8),xlab='time step', ylab='exp', main="ic_16")
-  
-  lines(`ic16_lexp11`$lexp, type='l', col="red", lwd=1.5)
-  lines(`ic16_lexp24`$lexp, type='l', col="orange", lwd=1.5)
-  lines(`ic16_lexp53`$lexp, type='l', col="yellow", lwd=1.5)
-  lines(`ic16_lexp64`$lexp, type='l', col="blue", lwd=1.5)
-  lines(`ic16_lexp113`$lexp, type='l', col="purple", lwd=1.5)
-  
-  legend(150, 7, legend=c("11", "24", "53", "64", "113"),
-         col=c("red", "orange", "yellow", "blue", "purple"), lty=1:1, cex=0.8)
-}
+
+
+
+
 
 
 

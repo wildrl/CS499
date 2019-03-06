@@ -35,3 +35,18 @@ ic16_pol24 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_16/polar24.csv")
 ic16_pol53 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_16/polar53.csv")
 ic16_pol64 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_16/polar64.csv")
 ic16_pol113 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_16/polar113.csv")
+
+#IC_24
+ic24_pol11 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_24/polar11.csv")
+ic24_pol24 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_24/polar24.csv")
+ic24_pol53 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_24/polar53.csv")
+ic24_pol64 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_24/polar64.csv")
+ic24_pol113 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_24/polar113.csv")
+
+
+#IC_25
+ic25_pol11 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_25/polar11.csv")
+ic25_pol24 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_25/polar24.csv")
+ic25_pol53 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_25/polar53.csv")
+ic25_pol64 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_25/polar64.csv")
+ic25_pol113 <- read.csv(file="~/CS499/CS499/mpfr_data/ic_25/polar113.csv")

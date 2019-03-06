@@ -12,11 +12,11 @@ NSTEPS=0
 print(np.finfo(np.longdouble))
 print(np.finfo(np.float64))
 
-mpfr8_file = open("./mpfr_data/ic_15/cartesian11.txt", "r")
-mpfr16_file = open("./mpfr_data/ic_15/cartesian24.txt", "r")
-mpfr32_file = open("./mpfr_data/ic_15/cartesian53.txt", "r")
-mpfr64_file = open("./mpfr_data/ic_15/cartesian64.txt", "r")
-mpfr128_file = open("./mpfr_data/ic_15/cartesian113.txt", "r")
+mpfr8_file = open("./mpfr_data/ic_25/cartesian11.txt", "r")
+mpfr16_file = open("./mpfr_data/ic_25/cartesian24.txt", "r")
+mpfr32_file = open("./mpfr_data/ic_25/cartesian53.txt", "r")
+mpfr64_file = open("./mpfr_data/ic_25/cartesian64.txt", "r")
+mpfr128_file = open("./mpfr_data/ic_25/cartesian113.txt", "r")
 
 t_8, t_16, t_32, t_64, t_128 = ([] for i in range(5))
 x1_8, x1_16, x1_32, x1_64, x1_128 = ([] for i in range(5))
@@ -70,11 +70,11 @@ ax = fig.add_subplot(111, autoscale_on=False, xlim=(-2, 2), ylim=(-2, 2))
 ax.set_aspect('equal')
 ax.grid()
 
-line8, = ax.plot([], [], 'r-', lw=2, label='8-bit')
-line16, = ax.plot([], [], 'y-', lw=2, label='16-bit')
-line32, = ax.plot([], [], 'g-', lw=2, label='32-bit')
+line8, = ax.plot([], [], 'r-', lw=2, label='11-bit')
+line16, = ax.plot([], [], '-', color="orange", lw=2, label='24-bit')
+line32, = ax.plot([], [], 'g-', lw=2, label='53-bit')
 line64, = ax.plot([], [], 'b-', lw=2, label='64-bit')
-line128, = ax.plot([], [], 'm-', lw=2, label='128-bit')
+line128, = ax.plot([], [], 'm-', lw=2, label='113-bit')
 ax.legend()
 
 time_template = 't = %.6fs'

@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
     //output_energy(&t_curr,  &yin);
 
     /* Perform the integration. */
-    for (int i = 0; i < NSTEP; i++) {
+    for (int i = 0; i < 100000; i++) {
 
       mpfr_add(t_next, t_curr, h, MPFR_RNDN);		// update time
       runge_kutta(t_curr, &yin, &yout, h);      // preform runge kutta 

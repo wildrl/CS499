@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 
       mpfr_add(t_next, t_curr, h, MPFR_RNDN);		// update time
       runge_kutta(t_curr, &yin, &yout, h);      // preform runge kutta 
-      runge_kutta(t_curr, &yin_s, &yout_s, h);	// preform runge kutta on adjusted IC
+//      runge_kutta(t_curr, &yin_s, &yout_s, h);	// preform runge kutta on adjusted IC
 
       //calc_di(&di, &yout, &yout_s);
       //lyapunov(&sum, &d0, &di);

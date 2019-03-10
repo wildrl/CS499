@@ -20,7 +20,7 @@ void derivs(y_t *yin, y_t *dydx) {
 
   /* Initilize variable precision. */
   mpfr_inits2(nbits, mass_sum, w1_sqr, w2_sqr, num1, den1, num2, den2, 
-    aux, aux2, del, cos_del, sin_del, sin_cos_del, sin_th1, sin_th2, NULL);
+    aux, del, cos_del, sin_del, sin_cos_del, sin_th1, sin_th2, NULL);
 
 
   /* Initilize variables. */

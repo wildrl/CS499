@@ -12,7 +12,6 @@
 
 int nbits;  /* number of bits to use for mantissa */
 mpfr_t h;   /* step size */
-mpfr_t
 
 typedef struct {
   mpfr_t th1;     /* angle of pend 1 */

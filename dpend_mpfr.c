@@ -119,6 +119,7 @@ int main(int argc, char *argv[])
 
     /* Set initial values converting angles to radians. */
     mpfr_set(t_curr, TMIN, MPFR_RNDN);
+    mpfr_set_d(t_next, 0.0, MPFR_RNDN);
     mpfr_mul(yin.th1, TH10, radian_conv, MPFR_RNDN);  // th1[0] = TH10*PI/180.0;
     mpfr_mul(yin.w1, W10, radian_conv, MPFR_RNDN);    // w1[0] = W10*PI/180.0;
     mpfr_mul(yin.th2, TH20, radian_conv, MPFR_RNDN);  // th2[0] = TH20*PI/180.0;

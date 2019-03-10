@@ -89,7 +89,8 @@ int main(int argc, char *argv[])
     //fprintf(energy_output, "time,KE,PE,Total\n");
 
     mpfr_t h, TMIN, TMAX, t_curr, t_next, TH10, W10, TH20, W20;
-    mpfr_inits2(nbits, h, TMIN, TMAX, t_curr, t_next, TH10, W10, TH20, W20, NULL);
+    mpfr_inits2(nbits, h, TMIN, TMAX, TH10, W10, TH20, W20, NULL);
+    mpfr_inits2(113, t_curr, t_next, NULL);
 
     y_t yin, yout;
     mpfr_inits2(nbits, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
@@ -193,7 +194,7 @@ int main(int argc, char *argv[])
 
     //  calc_di(&d0, &yin, &yin_s);
     }
-
+printf("done with integration loop\n");
    // c = 1.0/((double) NSTEP);
 
    // mpfr_set_d(exp, c, MPFR_RNDN);

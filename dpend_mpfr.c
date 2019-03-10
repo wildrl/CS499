@@ -5,6 +5,7 @@
  * Parameters are passed in at the command line:
  * 
  * $./dpend_mpfr.c TMIN TMAX TH10 W10 TH20 W20 NSTEP BITS
+ $./dpend_mpfr.c TMIN TMAX TH10 W10 TH20 W20 BITS
  *
  * TMIN, TMAX - start and end times (seconds)
  * TH10, TH20 - initial angles of the pendulums (degrees)
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
   fclose(all_ics);
 
   /* Open file to record final lyapunov exponents in for each run. */
-  final_lexp_output = fopen("./mpfr_data/final_lexps.csv", "a");
+  //final_lexp_output = fopen("./mpfr_data/final_lexps.csv", "a");
 
   // Preform Runga Kutta method to solve the dpend system for each mantissa size. */
   for (int j = 0; j < 5; j++) {
@@ -75,11 +76,11 @@ int main(int argc, char *argv[])
     cartesian_output = fopen(cartesian_fn, "w");
     fprintf(cartesian_output, "time,x1,y1,x2,y2\n");
 
-    /* Create output file for lypapunov exponent. */
+    /* Create output file for lypapunov exponent. *2/
     char lexp_fn[50];
     snprintf(lexp_fn, 50, "%s/lexp%d.csv", dir_name, nbits);
     lexp_output = fopen(lexp_fn, "w");
-    fprintf(lexp_output, "time,lexp\n");
+    fprintf(lexp_output, "time,lexp\n"); */
 
     /* Create output file for energy values. */
     //char energy_fn[50];
@@ -100,13 +101,15 @@ int main(int argc, char *argv[])
     mpfr_set_flt(W10, atof(argv[4]), MPFR_RNDN);
     mpfr_set_flt(TH20, atof(argv[5]), MPFR_RNDN);
     mpfr_set_flt(W20, atof(argv[6]), MPFR_RNDN);
-    NSTEP = atoi(argv[7]);
+   // NSTEP = atoi(argv[7]);
 
     /* Calculate stepsize for integration */
-    mpfr_sub(h, TMAX, TMIN, MPFR_RNDN);
-    NSTEP--;
-    mpfr_div_ui(h, h, NSTEP, MPFR_RNDN);  //h = (TMAX - TMIN)/(NSTEP - 1.0)
-    NSTEP++;
+  //  mpfr_sub(h, TMAX, TMIN, MPFR_RNDN);
+  //  NSTEP--;
+  //  mpfr_div_ui(h, h, NSTEP, MPFR_RNDN);  //h = (TMAX - TMIN)/(NSTEP - 1.0)
+ //   NSTEP++;
+     mpfr_set_d(h, 0.0001, MPFR_RNDN);
+     NSTEP = (int) (atof(argv[2])-atof(argv[1]))/0.0001;
 
     /* Create constant for converting angles to radians. */
     mpfr_t radian_conv;
@@ -125,7 +128,7 @@ int main(int argc, char *argv[])
     mpfr_clears(TMIN, TMAX, TH10, W10, TH20, W20, radian_conv, NULL);
 
     /* ********************** FOR LYAPUNOV EXP: ********************** */
-    y_t yin_s, yout_s;
+ /***   y_t yin_s, yout_s;
     mpfr_t d0, di, sum, delta, exp;
     mpfr_inits2(nbits, yin_s.th1, yin_s.w1, yin_s.th2, yin_s.w2, yout_s.th1, yout_s.w1, yout_s.th2, yout_s.w2, NULL);
     mpfr_inits2(53, d0, di, sum, delta, exp, NULL);
@@ -133,21 +136,21 @@ int main(int argc, char *argv[])
     mpfr_set_d(sum, 0.0, MPFR_RNDN);
     int n = -nbits;
 
-    /* calc d0 as square root of machine precision */
+    /2* calc d0 as square root of machine precision *2/
     mpfr_set_d(d0, 2.0, MPFR_RNDN);
     mpfr_pow_si(d0, d0, n, MPFR_RNDN);
     mpfr_sqrt(d0, d0, MPFR_RNDN);
 
-    /* Pick a point that is d0 away from the initial condition. */
+   // /2* Pick a point that is d0 away from the initial condition. *2/
     mpfr_div_si(delta, d0, 2, MPFR_RNDN);
 
     mpfr_add(yin_s.th1, yin.th1, delta, MPFR_RNDN);
     mpfr_add(yin_s.w1, yin.w1, delta, MPFR_RNDN);
     mpfr_add(yin_s.th2, yin.th2, delta, MPFR_RNDN);
-    mpfr_add(yin_s.w2, yin.w2, delta, MPFR_RNDN);
-    
-    double c;
+    mpfr_add(yin_s.w2, yin.w2, delta, MPFR_RNDN); 
 
+    double c;
+*/
     /* *************************************************************** */
 
     /* Output initial values. */
@@ -162,23 +165,23 @@ int main(int argc, char *argv[])
       runge_kutta(t_curr, &yin, &yout, h);      // preform runge kutta 
       runge_kutta(t_curr, &yin_s, &yout_s, h);	// preform runge kutta on adjusted IC
 
-      calc_di(&di, &yout, &yout_s);
-      lyapunov(&sum, &d0, &di);
-      reset_yin_s(&d0, &di, &yout, &yout_s, &yin_s);
+      //calc_di(&di, &yout, &yout_s);
+      //lyapunov(&sum, &d0, &di);
+      //reset_yin_s(&d0, &di, &yout, &yout_s, &yin_s);
 
       /* Print output to files. */
       output_polar(&t_next, &yout);
       output_cartesian(&t_next, &yout);
       //output_energy(&t_next, &yout);
 
-      if (i != 0 && i%10 == 0) {
-        c = 1.0/(double) i;
-        mpfr_set_d(exp, c, MPFR_RNDN);
-        mpfr_div(exp, exp, h, MPFR_RNDN);
-        mpfr_mul(exp, exp, sum, MPFR_RNDN);
+    //  if (i != 0 && i%10 == 0) {
+     //   c = 1.0/(double) i;
+    //    mpfr_set_d(exp, c, MPFR_RNDN);
+    //    mpfr_div(exp, exp, h, MPFR_RNDN);
+    //    mpfr_mul(exp, exp, sum, MPFR_RNDN);
 
-        output_lyapunov(&t_next, &exp);
-      }
+    //    output_lyapunov(&t_next, &exp);
+    //  }
 
       /* Set yin to yout. */
       mpfr_set(yin.th1, yout.th1, MPFR_RNDN);
@@ -187,35 +190,35 @@ int main(int argc, char *argv[])
       mpfr_set(yin.w2, yout.w2, MPFR_RNDN);
       mpfr_set(t_curr, t_next, MPFR_RNDN);
 
-      calc_di(&d0, &yin, &yin_s);
+    //  calc_di(&d0, &yin, &yin_s);
     }
 
-    c = 1.0/((double) NSTEP);
+   // c = 1.0/((double) NSTEP);
 
-    mpfr_set_d(exp, c, MPFR_RNDN);
-    mpfr_div(exp, exp, h, MPFR_RNDN);
-    mpfr_mul(exp, exp, sum, MPFR_RNDN);
+   // mpfr_set_d(exp, c, MPFR_RNDN);
+   // mpfr_div(exp, exp, h, MPFR_RNDN);
+   // mpfr_mul(exp, exp, sum, MPFR_RNDN);
 
-    mpfr_printf("Lyapunov Exponent: %.24Rf\n", exp);
-    mpfr_fprintf(final_lexp_output, "ic_%d,%0.32RF\n", dir_count, exp);
+   // mpfr_printf("Lyapunov Exponent: %.24Rf\n", exp);
+  //  mpfr_fprintf(final_lexp_output, "ic_%d,%0.32RF\n", dir_count, exp);
 
     /* Clean up. */
-    mpfr_clears(yin_s.th1, yin_s.w1, yin_s.th2, yin_s.w2, 
-  		yout_s.th1, yout_s.w1, yout_s.th2, yout_s.w2,
-  		d0, di, sum, delta, exp, NULL);
+  //  mpfr_clears(yin_s.th1, yin_s.w1, yin_s.th2, yin_s.w2, 
+  //		yout_s.th1, yout_s.w1, yout_s.th2, yout_s.w2,
+  //		d0, di, sum, delta, exp, NULL);
     mpfr_clears(h, t_curr, t_next, yin.th1, yin.w1, yin.th2, yin.w2,
   		yout.th1, yout.w1, yout.th2, yout.w2, NULL);
     mpfr_free_cache();
 
     /* Close files. */
     fclose(polar_output);
-    fclose(lexp_output);
+  //  fclose(lexp_output);
     fclose(cartesian_output);
     //fclose(energy_output);
   }
 
   /* Close files. */
-  fclose(final_lexp_output);
+//  fclose(final_lexp_output);
 
   return 0;
 }

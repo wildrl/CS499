@@ -242,68 +242,41 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout, mpfr_t h)
   mpfr_free_cache();
 }
 
-void lyapunov(mpfr_t *sum, mpfr_t *d0, mpfr_t *di) {
-  mpfr_t temp;
-  mpfr_init2(temp, 53);
+/* 
+ * Calculates the magnitude of y_t and stores it in magnitude. 
+ */
+void magnitude (y_t *y, mpfr_t *magnitude) {
+  mpfr_t aux;
+  mpfr_init2(aux, nbits);
 
-  mpfr_div(temp, *di, *d0, MPFR_RNDN);
-  mpfr_log(temp, temp, MPFR_RNDN);
+  mpfr_set(*magnitude, *y.th1, MPFR_RNDN);
+  mpfr_sqr(*magnitude, *magnitude, MPFR_RNDN);
+  mpfr_sqr(aux, *y.w1, MPFR_RNDN);
+  mpfr_add(*magnitude, *magnitude, aux, MPFR_RNDN);
+  mpfr_sqr(aux, *y.th2, MPFR_RNDN);
+  mpfr_add(*magnitude, *magnitude, aux, MPFR_RNDN);
+  mpfr_sqr(aux, *y.w2, MPFR_RNDN);
+  mpfr_add(*magnitude, *magnitude, aux, MPFR_RNDN);
+}
 
-  mpfr_add(*sum, *sum, temp, MPFR_RNDN);
+/* 
+ * Calculates the magnitude of y1 and y2 and stores it in dot. 
+ */
+void dot_product(y_t *y1, y_t *y2, mpfr_t *dot) {
+  mpfr_t aux;
+  mpfr_init2(magnitude, nbits);
 
-  mpfr_clears(temp, NULL);
+  mpfr_set(*dot, *y1.th1, MPFR_RNDN);
+  mpfr_mul(*dot, *y2.th1, MPFR_RNDN);
+  mpfr_mul(aux, *y1.w1, *y2.w1, MPFR_RNDN);
+  mpfr_add(*dot, *dot, aux, MPFR_RNDN);
+  mpfr_mul(aux, *y1.th2, *y2.th2, MPFR_RNDN);
+  mpfr_add(*dot, *dot, aux, MPFR_RNDN);
+  mpfr_mul(aux, *y1.w2, *y2.w2, MPFR_RNDN);
+  mpfr_add(*dot, *dot, aux, MPFR_RNDN);
 }
 
 
-void calc_di(mpfr_t *di, y_t *y0, y_t *y1) {
-  mpfr_t temp;
-  mpfr_init_set_d(temp, 0.0, 53);
-  
-  mpfr_sub(temp, y0->th1, y1->th1, MPFR_RNDN);
-  mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_set(*di, temp, MPFR_RNDN);
-
-  mpfr_sub(temp, y0->w1, y1->w1, MPFR_RNDN);
-  mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_add(*di, *di, temp, MPFR_RNDN);
-
-  mpfr_sub(temp, y0->th2, y1->th2, MPFR_RNDN);
-  mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_add(*di, *di, temp, MPFR_RNDN);
-
-  mpfr_sub(temp, y0->w2, y1->w2, MPFR_RNDN);
-  mpfr_sqr(temp, temp, MPFR_RNDN);
-  mpfr_add(*di, *di, temp, MPFR_RNDN);
-
-  mpfr_sqrt(*di, *di, MPFR_RNDN);
-
-  mpfr_clear(temp);
-}
-
-void reset_yin_s(mpfr_t *d0, mpfr_t *di, y_t *y0, y_t *y1_out, y_t *y1_in) {
-  mpfr_t d;
-  mpfr_init_set_d(d, 0.0, 53);
-
-  mpfr_div(d, *d0, *di, MPFR_RNDN);
-  
-  mpfr_sub(y1_in->th1, y1_out->th1, y0->th1, MPFR_RNDN);
-  mpfr_mul(y1_in->th1, y1_in->th1, d, MPFR_RNDN);
-  mpfr_add(y1_in->th1, y1_in->th1, y0->th1, MPFR_RNDN);
-
-  mpfr_sub(y1_in->w1, y1_out->w1, y0->w1, MPFR_RNDN);
-  mpfr_mul(y1_in->w1, y1_in->w1, d, MPFR_RNDN);
-  mpfr_add(y1_in->w1, y1_in->w1, y0->w1, MPFR_RNDN);
-
-  mpfr_sub(y1_in->th2, y1_out->th2, y0->th2, MPFR_RNDN);
-  mpfr_mul(y1_in->th2, y1_in->th2, d, MPFR_RNDN);
-  mpfr_add(y1_in->th2, y1_in->th2, y0->th2, MPFR_RNDN);
-
-  mpfr_sub(y1_in->w2, y1_out->w2, y0->w2, MPFR_RNDN);
-  mpfr_mul(y1_in->w2, y1_in->w2, d, MPFR_RNDN);
-  mpfr_add(y1_in->w2, y1_in->w2, y0->w2, MPFR_RNDN);
-
-  mpfr_clears(d, NULL);
-}
 
 
 

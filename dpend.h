@@ -20,10 +20,14 @@ typedef struct {
   mpfr_t w2;      /* angular velocity of pend 2 */
 } y_t;
 
+char dir_name[30];
+y_t *y_actual;
+
 FILE *polar_output;
 FILE *cartesian_output;
 FILE *energy_output;
-FILE *lexp_output;
+FILE *mag_output;
+FILE *mag_dot_output;
 
 FILE *final_lexp_output;
 FILE *all_ics;

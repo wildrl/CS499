@@ -11,6 +11,68 @@
 #include <mpfr.h>
 
 
+void output_initial_condition() {
+  all_ics = fopen("./mpfr_data/all_ics.txt", "a");
+  fprintf(all_ics, "ic_%d,%s,%s,%s,%s,%s\n", 
+          dir_count, argv[1], argv[2], argv[3], argv[4], argv[5]);
+  fclose(all_ics);
+}
+
+void create_output_directory() {
+  /* Count number of files in mpfr_data in order to name the new file to be created. */
+  int dir_count = 0;
+  DIR *dirp;
+  struct dirent *entry;
+    
+  dirp = opendir("./mpfr_data");
+  while ((entry = readdir(dirp)) != NULL) {
+    if (entry->d_type == DT_DIR) { /* If the entry is a regular file */
+      dir_count++;
+    }
+  }
+  closedir(dirp);
+
+  /* Create ic_# directory to store output in. */
+  snprintf(dir_name, 30, "./mpfr_data/ic_%d", dir_count);
+  mkdir(dir_name, 0777);
+}
+
+void create_out_files() {
+    char polar_fn[50], cartesian_fn[50], mag_fn[50]; //energy_fn[50];
+
+    /* Create output file for polar coordinates. */
+    snprintf(polar_fn, 50, "%s/polar%d.csv", dir_name, nbits);
+    polar_output = fopen(polar_fn, "w");
+    fprintf(polar_output, "time,th1,w1,th2,w2\n");
+
+    /* Create output file for cartesian coordinates. */
+    snprintf(cartesian_fn, 50, "%s/cartesian%d.txt", dir_name, nbits);
+    cartesian_output = fopen(cartesian_fn, "w");
+    fprintf(cartesian_output, "time,x1,y1,x2,y2\n");
+
+    /* Create output file for magnitude. */
+    snprintf(mag_fn, 50, "%s/mag%d.csv", dir_name, nbits);
+    mag_output = fopen(mag_fn, "w");
+    fprintf(mag_output, "time,magnitude,dot_product\n");
+
+    /* Create output file for energy values. */
+    //snprintf(energy_fn, 50, "%s/energy%d.csv", dir_name, nbits);
+    //energy_output = fopen(energy_fn, "w");
+    //fprintf(energy_output, "time,KE,PE,Total\n");
+}
+
+void output_mag(mpfr_t* t, mpfr_t *mag, mpfr_t *dot) {
+
+  if (nbits != 113) {
+    mpfr_fprintf(mag_output, "%0.32RNF,%0.32RNF,%0.32RNF\n", 
+              *t, mag, dot);
+  } else {
+    mpfr_fprintf(mag_output, "%0.32RNF,%0.32RNF,0\n", 
+              *t, mag);
+  }
+
+}
+
 void output_polar(mpfr_t* t, y_t* y) 
 {
   mpfr_fprintf(polar_output, "%0.32RNf,%0.32RNf,%0.32RNF,%0.32RNF,%0.32RNF\n", 

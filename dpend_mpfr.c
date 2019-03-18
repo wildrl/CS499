@@ -30,11 +30,13 @@ int main(int argc, char *argv[])
   int mantissa_sz[5] = {113,11,24,53,64};
 
   create_output_directory();
-  output_initial_conditions();
+  output_initial_conditions(argv);
 
+  mpfr_init2(h, 113);
   mpfr_set_d(h, 0.0001, MPFR_RNDN);
 
-  y_actual = (y_t*) malloc(NSTEP*sizeof(y_t*));
+  y_t ** y_actual;
+  y_actual = malloc(NSTEP*sizeof(y_t*));
 
   /* Create constant for converting angles to radians. */
   mpfr_t radian_conv;
@@ -69,10 +71,11 @@ int main(int argc, char *argv[])
     mpfr_mul_d(yin.w2, radian_conv, atof(argv[4]), MPFR_RNDN);    // w2[0] = W2*PI/180.0
 
     magnitude(&yin, &mag);
-    if (nbits != 113) { 
-      dot(&yin, y_actual[0], dot);
+    if (nbits != 113) {
+      dot_product(&yin, y_actual[0], &dot);
       output_mag(&t_curr, &mag, &dot);
     } else {
+      y_actual[0] = &yin;
       output_mag(&t_curr, &mag, NULL);
     }
 
@@ -82,8 +85,7 @@ int main(int argc, char *argv[])
     //output_energy(&t_curr,  &yin);
 
 
-    printf("Computing %d-bit result... ", nbits);
-
+    printf("Computing %d-bit result... ", nbits); fflush(stdout);
     /* Perform the integration. */
     for (int i = 1; i < NSTEP; i++) {
 
@@ -103,11 +105,11 @@ int main(int argc, char *argv[])
       mpfr_set(yin.w2, yout.w2, MPFR_RNDN);
       mpfr_set(t_curr, t_next, MPFR_RNDN);
 
-      if (nbits = 113) { y_actual[i] = &yin; }
+      if (nbits == 113) { y_actual[i] = &yin; }
 
       magnitude(&yout, &mag);
       if (nbits != 113) { 
-        dot(&yout, y_actual[i], dot);
+        dot_product(&yout, y_actual[i], &dot);
         output_mag(&t_curr, &mag, &dot);
       } else {
         output_mag(&t_curr, &mag, NULL);
@@ -130,7 +132,7 @@ int main(int argc, char *argv[])
 
 
   mpfr_clears(radian_conv, h, NULL);
-
+  free(y_actual);
 
   return 0;
 }

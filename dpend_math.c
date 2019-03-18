@@ -249,13 +249,13 @@ void magnitude (y_t *y, mpfr_t *magnitude) {
   mpfr_t aux;
   mpfr_init2(aux, nbits);
 
-  mpfr_set(*magnitude, *y.th1, MPFR_RNDN);
+  mpfr_set(*magnitude, y->th1, MPFR_RNDN);
   mpfr_sqr(*magnitude, *magnitude, MPFR_RNDN);
-  mpfr_sqr(aux, *y.w1, MPFR_RNDN);
+  mpfr_sqr(aux, y->w1, MPFR_RNDN);
   mpfr_add(*magnitude, *magnitude, aux, MPFR_RNDN);
-  mpfr_sqr(aux, *y.th2, MPFR_RNDN);
+  mpfr_sqr(aux, y->th2, MPFR_RNDN);
   mpfr_add(*magnitude, *magnitude, aux, MPFR_RNDN);
-  mpfr_sqr(aux, *y.w2, MPFR_RNDN);
+  mpfr_sqr(aux, y->w2, MPFR_RNDN);
   mpfr_add(*magnitude, *magnitude, aux, MPFR_RNDN);
 }
 
@@ -264,15 +264,15 @@ void magnitude (y_t *y, mpfr_t *magnitude) {
  */
 void dot_product(y_t *y1, y_t *y2, mpfr_t *dot) {
   mpfr_t aux;
-  mpfr_init2(magnitude, nbits);
+  mpfr_init2(aux, nbits);
 
-  mpfr_set(*dot, *y1.th1, MPFR_RNDN);
-  mpfr_mul(*dot, *y2.th1, MPFR_RNDN);
-  mpfr_mul(aux, *y1.w1, *y2.w1, MPFR_RNDN);
+  mpfr_set(*dot, y1->th1, MPFR_RNDN);
+  mpfr_mul(*dot, *dot, y2->th1, MPFR_RNDN);
+  mpfr_mul(aux, y1->w1, y2->w1, MPFR_RNDN);
   mpfr_add(*dot, *dot, aux, MPFR_RNDN);
-  mpfr_mul(aux, *y1.th2, *y2.th2, MPFR_RNDN);
+  mpfr_mul(aux, y1->th2, y2->th2, MPFR_RNDN);
   mpfr_add(*dot, *dot, aux, MPFR_RNDN);
-  mpfr_mul(aux, *y1.w2, *y2.w2, MPFR_RNDN);
+  mpfr_mul(aux, y1->w2, y2->w2, MPFR_RNDN);
   mpfr_add(*dot, *dot, aux, MPFR_RNDN);
 }
 

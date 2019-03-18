@@ -21,7 +21,8 @@ typedef struct {
 } y_t;
 
 char dir_name[30];
-y_t *y_actual;
+int dir_count;
+//y_t *y_actual[];
 
 FILE *polar_output;
 FILE *cartesian_output;

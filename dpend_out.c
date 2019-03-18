@@ -9,9 +9,10 @@
 #include <stdlib.h>
 #include <gmp.h>
 #include <mpfr.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
-
-void output_initial_condition() {
+void output_initial_conditions(char* argv[]) {
   all_ics = fopen("./mpfr_data/all_ics.txt", "a");
   fprintf(all_ics, "ic_%d,%s,%s,%s,%s,%s\n", 
           dir_count, argv[1], argv[2], argv[3], argv[4], argv[5]);
@@ -20,7 +21,7 @@ void output_initial_condition() {
 
 void create_output_directory() {
   /* Count number of files in mpfr_data in order to name the new file to be created. */
-  int dir_count = 0;
+  dir_count = 0;
   DIR *dirp;
   struct dirent *entry;
     
@@ -77,12 +78,6 @@ void output_polar(mpfr_t* t, y_t* y)
 {
   mpfr_fprintf(polar_output, "%0.32RNf,%0.32RNf,%0.32RNF,%0.32RNF,%0.32RNF\n", 
               *t, y->th1, y->w1, y->th2, y->w2);
-}
-
-void output_lyapunov(mpfr_t* t, mpfr_t* exp) 
-{
-  mpfr_fprintf(lexp_output, "%0.32RNf,%0.32RNf\n", 
-              *t, *exp);
 }
 
 void output_cartesian(mpfr_t* t, y_t* y) 

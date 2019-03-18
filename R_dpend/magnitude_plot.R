@@ -1,19 +1,23 @@
-# IC 25: ic_25,0.0,50.0,180,0,-10,40.1,10000
-mag_plot(ic25_pol11, ic25_pol24,ic25_pol53,ic25_pol64,ic25_pol113, 
-        "ic25 magnitude", nrow(ic25_pol11), 300)
 
-w_plot(ic25_pol11$w1, ic25_pol24$w1,ic25_pol53$w1,ic25_pol64$w1,ic25_pol113$w1, 
-         "ic25 w1", nrow(ic25_pol11), -20, 30)
-w_plot(ic25_pol11$w2, ic25_pol24$w2,ic25_pol53$w2,ic25_pol64$w2,ic25_pol113$w2, 
-       "ic25 w2", nrow(ic25_pol11), -20, 30)
+mag_plot(ic10_pol11, ic10_pol24, ic10_pol53, ic10_pol64, ic10_pol113, 
+        "ic10 magnitude", nrow(ic10_pol11), 15)
 
-sum_w_plot(ic25_pol11, ic25_pol24,ic25_pol53,ic25_pol64,ic25_pol113, 
-           "ic25 w1+w2", nrow(ic25_pol11), -20, 30)
+w_plot(ic10_pol11$w1, ic10_pol24$w1, ic10_pol53$w1, ic10_pol64$w1, ic10_pol113$w1, 
+      "ic10 w1", nrow(ic10_pol11), -10, 10) 
+w_plot(ic10_pol11$w2, ic10_pol24$w2, ic10_pol53$w2, ic10_pol64$w2, ic10_pol113$w2, 
+      "ic25 w2", nrow(ic10_pol11), -10, 10)
+
+sum_w_plot(ic10_pol11, ic10_pol24, ic10_pol53, ic10_pol64, ic10_pol113, 
+           "ic10 w1+w2", nrow(ic10_pol11), -20, 30)
 
 
-#LEXP LINE PLOT
+mag_plot(ic11_pol11, ic11_pol24, ic11_pol53, ic11_pol64, ic11_pol113, 
+         "ic11 magnitude", nrow(ic11_pol11), 15)
+
+
+
 mag_plot <- function(d11,d24,d53,d64,d113, title, nrows, ymax) {
-  plot(1,type='n',xlim=c(1,nrows),ylim=c(0,ymax),xlab='time step', ylab='exp', main=title)
+  plot(1,type='n',xlim=c(0,100000),ylim=c(0,ymax),xlab='time step', ylab='magnitude', main=title)
   
   y1 <- sqrt(d11$th1^2 + d11$w1^2 + d11$th2^2 + d11$w2^2)
   y2 <- sqrt(d24$th1^2 + d24$w1^2 + d24$th2^2 + d24$w2^2)
@@ -64,18 +68,3 @@ w_plot <- function(d11,d24,d53,d64,d113, title, nrows, ymin, ymax) {
          col=c("red", "orange", "green", "blue", "purple"), lty=1:1, cex=0.8)
 }
 
-time_of_divergence(ic25_pol64, ic25_pol113, 64)
-
-time_of_divergence <- function(dn, dm, dn_nbits) {
-  d0 <- sqrt(2^(-dn_nbits))
-  d <- sqrt((dm$th1-dn$th1)^2 + (dm$w1-dn$w1)^2 + (dm$th2-dn$th2)^2 + (dm$w2-dn$w2)^2)
-   
-   for (i in 1:nrow(dn)) {
-     if (d[i] > 10*d0 + sqrt(2^(-113))) {
-         print(dn[i,]) 
-         print(dm[i,])
-         return()
-     }
-   }
-}
-  

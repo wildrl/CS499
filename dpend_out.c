@@ -38,26 +38,26 @@ void create_output_directory() {
   mkdir(dir_name, 0777);
 }
 
-void create_out_files() {
+void create_out_files(int num) {
     char polar_fn[50], cartesian_fn[50], mag_fn[50]; //energy_fn[50];
 
     /* Create output file for polar coordinates. */
-    snprintf(polar_fn, 50, "%s/polar%d.csv", dir_name, nbits);
+    snprintf(polar_fn, 50, "%s/polar%d.csv", dir_name, num);
     polar_output = fopen(polar_fn, "w");
     fprintf(polar_output, "time,th1,w1,th2,w2\n");
 
     /* Create output file for cartesian coordinates. */
-    snprintf(cartesian_fn, 50, "%s/cartesian%d.txt", dir_name, nbits);
+    snprintf(cartesian_fn, 50, "%s/cartesian%d.txt", dir_name, num);
     cartesian_output = fopen(cartesian_fn, "w");
     fprintf(cartesian_output, "time,x1,y1,x2,y2\n");
 
     /* Create output file for magnitude. */
-    snprintf(mag_fn, 50, "%s/mag%d.csv", dir_name, nbits);
+    snprintf(mag_fn, 50, "%s/mag%d.csv", dir_name, num);
     mag_output = fopen(mag_fn, "w");
     fprintf(mag_output, "time,magnitude,dot_product\n");
 
     /* Create output file for energy values. */
-    //snprintf(energy_fn, 50, "%s/energy%d.csv", dir_name, nbits);
+    //snprintf(energy_fn, 50, "%s/energy%d.csv", dir_name, num);
     //energy_output = fopen(energy_fn, "w");
     //fprintf(energy_output, "time,KE,PE,Total\n");
 }

@@ -257,6 +257,7 @@ void magnitude (y_t *y, mpfr_t *magnitude) {
   mpfr_add(*magnitude, *magnitude, aux, MPFR_RNDN);
   mpfr_sqr(aux, y->w2, MPFR_RNDN);
   mpfr_add(*magnitude, *magnitude, aux, MPFR_RNDN);
+  mpfr_sqrt(*magnitude, *magnitude, MPFR_RNDN);
 }
 
 /* 

@@ -9,8 +9,6 @@ from matplotlib.patches import Circle
 
 NSTEPS=0
 
-print(np.finfo(np.longdouble))
-print(np.finfo(np.float64))
 
 mpfr8_file = open("./mpfr_data/ic_25/cartesian11.txt", "r")
 mpfr16_file = open("./mpfr_data/ic_25/cartesian24.txt", "r")
@@ -116,7 +114,7 @@ def animate(i):
     step_text.set_text(step_template % i)
     return line8, line16, line32, line64, line128, step_text #time_text
 
-ani = animation.FuncAnimation(fig, animate, np.arange(1, NSTEPS),
-                              interval=25, blit=True, init_func=init)
+ani = animation.FuncAnimation(fig, animate, #np.arange(1, NSTEPS),
+                              interval=10000, blit=True, init_func=init, frames=50)
 
 plt.show()

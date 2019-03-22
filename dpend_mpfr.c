@@ -33,8 +33,7 @@ int main(int argc, char *argv[])
   create_output_directory();
   output_initial_conditions(argv);
 
-  mpfr_init2(h, 113);
-  mpfr_set_d(h, 0.0001, MPFR_RNDN);
+  
 
   y_t ** y_actual;
   y_actual = malloc(NSTEP*sizeof(y_t*));
@@ -50,11 +49,15 @@ int main(int argc, char *argv[])
     y_t yin, yout;
 
     nbits = mantissa_sz[j];
-//nbits = 113;
+
     /* Create constant for converting angles to radians. */
+
+    mpfr_init2(h, nbits);
+    mpfr_set_d(h, 0.0001, MPFR_RNDN);
+
     mpfr_init2(radian_conv, nbits);
     mpfr_const_pi(radian_conv, MPFR_RNDN);
-    mpfr_div_si(radian_conv, radian_conv, 180, MPFR_RNDN);
+    mpfr_div_ui(radian_conv, radian_conv, 180, MPFR_RNDN);
 
 
 
@@ -123,6 +126,8 @@ int main(int argc, char *argv[])
 
     printf("Done.\n");
 
+
+    mpfr_clears(radian_conv, h, NULL);
     mpfr_clears(mag, dot, t_curr, t_next, yin.th1, yin.w1, yin.th2, yin.w2,
   		yout.th1, yout.w1, yout.th2, yout.w2, NULL);
     mpfr_free_cache();
@@ -136,7 +141,7 @@ int main(int argc, char *argv[])
   }
 
 
-  mpfr_clears(radian_conv, h, NULL);
+  
   free(y_actual);
 
   return 0;

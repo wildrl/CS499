@@ -38,3 +38,39 @@ th_plot <- function(d11,d24,d53,d64,d113, title) {
   legend("topright", inset=c(-0.4,0),legend=c("11", "24", "53", "64", "113"),
          col=c("red", "orange", "yellow", "blue", "purple"), lty=1:1, cex=0.8)
 }
+
+
+
+sum_w_plot <- function(d11,d24,d53,d64,d113, title, nrows, ymin, ymax) {
+  plot(1,type='n',xlim=c(1,nrows),ylim=c(ymin,ymax),xlab='time step', ylab='exp', main=title)
+  
+  y1 <- d11$w1 + d11$w2
+  y2 <- d24$w1 + d24$w2
+  y3 <- d53$w1 + d53$w2
+  y4 <- d64$w1 + d64$w2
+  y5 <- d113$w1 + d113$w2
+  
+  lines(y1, type='l', col="red", lwd=1.5)
+  lines(y2, type='l', col="orange", lwd=1.5)
+  lines(y3, type='l', col="green", lwd=1.5)
+  lines(y4, type='l', col="blue", lwd=1.5)
+  lines(y5, type='l', col="purple", lwd=1.5)
+  
+  legend("topleft", legend=c("11", "24", "53", "64", "113"),
+         col=c("red", "orange", "green", "blue", "purple"), lty=1:1, cex=0.8)
+}
+
+w_plot <- function(d11,d24,d53,d64,d113, title, nrows, ymin, ymax) {
+  plot(1,type='n',xlim=c(1,nrows),ylim=c(ymin,ymax),xlab='time step', ylab='exp', main=title)
+  
+  lines(d11, type='l', col="red", lwd=1.5)
+  lines(d24, type='l', col="orange", lwd=1.5)
+  lines(d53, type='l', col="green", lwd=1.5)
+  lines(d64, type='l', col="blue", lwd=1.5)
+  lines(d113, type='l', col="purple", lwd=1.5)
+  
+  legend("topleft", legend=c("11", "24", "53", "64", "113"),
+         col=c("red", "orange", "green", "blue", "purple"), lty=1:1, cex=0.8)
+}
+
+

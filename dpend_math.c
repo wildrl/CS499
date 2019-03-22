@@ -103,7 +103,7 @@ void derivs(y_t *yin, y_t *dydx) {
  * Preforms runge-kutta method to integrate yin at time t.
  * Result is stored in yout. 
  */
-void runge_kutta(mpfr_t t, y_t *yin, y_t *yout, mpfr_t h) 
+void runge_kutta(mpfr_t t, y_t *yin, y_t *yout) 
 {
  
   y_t dydx, dydxt, yt, k1, k2, k3, k4;

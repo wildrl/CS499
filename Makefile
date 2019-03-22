@@ -6,7 +6,7 @@ orig: solve_dpend dpend_mpfr
 	./solve_dpend 0.0 10.0 180.0 0.00 -10 0.0 2000 > outfile-original.txt
 
 mpfr: dpend_mpfr
-	./dpend_mpfr 180 0 90.0001 0 1000000
+	./dpend_mpfr 180.1 0 90 0 800000
 
 solve_dpend: solve_dpend.c
 	$(CC) -g -O3 -Wall -std=c99 -o $@ $< -lm

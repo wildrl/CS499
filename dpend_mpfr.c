@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 {
   int NSTEP = atoi(argv[5]);
   int mantissa_sz[5] = {113,11,24,53,64};
-  int eps[5] = {0, 2^(-11), 2^(-24), 2^(-53), 2^(-64)};
+ // int eps[5] = {0, 2^(-11), 2^(-24), 2^(-53), 2^(-64)};
   
   create_output_directory();
   output_initial_conditions(argv);
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   y_actual = malloc(NSTEP*sizeof(y_t*));
 
 
-  mpfr_t radian_conv;
+//  mpfr_t radian_conv;
 
   /* Preform Runga Kutta method to solve the dpend system for each mantissa size. */
   for (int j = 0; j < 5; j++) {
@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
 
     /* Create constant for converting angles to radians. */
 
-    mpfr_init2(h, nbits);
-    mpfr_set_d(h, 0.0001, MPFR_RNDN);
-
+    mpfr_init2(h, 113);
+    mpfr_set_d(h, 0.001, MPFR_RNDN);
+    mpfr_t radian_conv;
     mpfr_init2(radian_conv, nbits);
     mpfr_const_pi(radian_conv, MPFR_RNDN);
     mpfr_div_ui(radian_conv, radian_conv, 180, MPFR_RNDN);

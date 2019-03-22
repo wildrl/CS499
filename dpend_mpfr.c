@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
 
     /* Create constant for converting angles to radians. */
 
-    mpfr_init2(h, 113);
-    mpfr_set_d(h, 0.001, MPFR_RNDN);
+    //mpfr_init2(h, 113);
+   // mpfr_set_d(h, 0.001, MPFR_RNDN);
     mpfr_t radian_conv;
     mpfr_init2(radian_conv, nbits);
     mpfr_const_pi(radian_conv, MPFR_RNDN);
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     /* Perform the integration. */
     for (int i = 1; i < NSTEP; i++) {
 
-      mpfr_add(t_next, t_curr, h, MPFR_RNDN);		// update time
+      mpfr_add_d(t_next, t_curr, h, MPFR_RNDN);		// update time
       runge_kutta(t_curr, &yin, &yout, h);      // preform runge kutta 
 
       /* Print output to files. */
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     printf("Done.\n");
 
 
-    mpfr_clears(radian_conv, h, NULL);
+    mpfr_clears(radian_conv, NULL);
     mpfr_clears(mag, dot, t_curr, t_next, yin.th1, yin.w1, yin.th2, yin.w2,
   		yout.th1, yout.w1, yout.th2, yout.w2, NULL);
     mpfr_free_cache();

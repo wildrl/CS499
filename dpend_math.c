@@ -150,19 +150,19 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout, mpfr_t h)
   /* Second step. */
   derivs(&yt, &dydxt);
 
-  mpfr_mul(k2.th1, h, dydxt.th1, MPFR_RNDN);      // k2.th1 = h*dydxt.th1
+  mpfr_mul_d(k2.th1, dydxt.th1, h, MPFR_RNDN);      // k2.th1 = h*dydxt.th1
   mpfr_mul_d(yt.th1, k2.th1, 0.5, MPFR_RNDN);  // yt.th1 = yin->th1 + 0.5*k2.th1
   mpfr_add(yt.th1, yt.th1, yin->th1, MPFR_RNDN);
 
-  mpfr_mul(k2.w1, h, dydxt.w1, MPFR_RNDN);        // k2.w1 = h*dydxt.w1
+  mpfr_mul_d(k2.w1, dydxt.w1, h, MPFR_RNDN);        // k2.w1 = h*dydxt.w1
   mpfr_mul_d(yt.w1, k2.w1, 0.5, MPFR_RNDN);    // yt.w1 = yin->w1 + 0.5*k2.w1
   mpfr_add(yt.w1, yt.w1, yin->w1, MPFR_RNDN);
 
-  mpfr_mul(k2.th2, h, dydxt.th2, MPFR_RNDN);      // k2.th2 = h*dydxt.th2
+  mpfr_mul_d(k2.th2, dydxt.th2, h, MPFR_RNDN);      // k2.th2 = h*dydxt.th2
   mpfr_mul_d(yt.th2, k2.th2, 0.5, MPFR_RNDN);  // yt.th2 = yin->th2 + 0.5*k2.th2
   mpfr_add(yt.th2, yt.th2, yin->th2, MPFR_RNDN);
 
-  mpfr_mul(k2.w2, h, dydxt.w2, MPFR_RNDN);        // k2.w2 = h*dydxt.w2
+  mpfr_mul_d(k2.w2, dydxt.w2, h, MPFR_RNDN);        // k2.w2 = h*dydxt.w2
   mpfr_mul_d(yt.w2, k2.w2, 0.5, MPFR_RNDN);    // yt.w2 = yin->w2 + 0.5*k2.w2  
   mpfr_add(yt.w2, yt.w2, yin->w2, MPFR_RNDN);
   
@@ -170,23 +170,23 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout, mpfr_t h)
   /* Third step. */
   derivs(&yt, &dydxt);
 
-  mpfr_mul(k3.th1, h, dydxt.th1, MPFR_RNDN);      // k3.th1 = h*dydxt.th1;
+  mpfr_mul_d(k3.th1, dydxt.th1, h, MPFR_RNDN);      // k3.th1 = h*dydxt.th1;
   mpfr_add(yt.th1, k3.th1, yin->th1, MPFR_RNDN);  // yt.th1 = yin->th1 + k3.th1;
 
-  mpfr_mul(k3.w1, h, dydxt.w1, MPFR_RNDN);        // k3.w1 = h*dydxt.w1;
+  mpfr_mul_d(k3.w1, dydxt.w1, h, MPFR_RNDN);        // k3.w1 = h*dydxt.w1;
   mpfr_add(yt.w1, k3.w1, yin->w1, MPFR_RNDN);     // yt.w1 = yin->w1 + k3.w1;
 
-  mpfr_mul(k3.th2, h, dydxt.th2, MPFR_RNDN);      // k3.th2 = h*dydxt.th2;
+  mpfr_mul_d(k3.th2, dydxt.th2, h, MPFR_RNDN);      // k3.th2 = h*dydxt.th2;
   mpfr_add(yt.th2, k3.th2, yin->th2, MPFR_RNDN);  // yt.th2 = yin->th2 + k3.th2;
 
-  mpfr_mul(k3.w2, h, dydxt.w2, MPFR_RNDN);        // k3.w2 = h*dydxt.w2;
+  mpfr_mul_d(k3.w2, dydxt.w2, h, MPFR_RNDN);        // k3.w2 = h*dydxt.w2;
   mpfr_add(yt.w2, k3.w2, yin->w2, MPFR_RNDN);     // yt.w2 = yin->w2 + k3.w2;
 
 
   /* Fourth step. */
   derivs(&yt, &dydxt);
 
-  mpfr_mul(k4.th1, h, dydxt.th1, MPFR_RNDN);      // k4.th1 = h*dydxt.th1;
+  mpfr_mul_d(k4.th1, dydxt.th1, h, MPFR_RNDN);      // k4.th1 = h*dydxt.th1;
   // yout->th1 = yin->th1 + (k1.th1 + k4.th1)/6.0 + (k2.th1 + k3.th1)/3.0
   mpfr_set(yout->th1, yin->th1, MPFR_RNDN);
   mpfr_add(aux, k1.th1, k4.th1, MPFR_RNDN);
@@ -197,7 +197,7 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout, mpfr_t h)
   mpfr_add(yout->th1, yout->th1, aux, MPFR_RNDN);
 
 
-  mpfr_mul(k4.w1, h, dydxt.w1, MPFR_RNDN);        // k4.w1 = h*dydxt.w1;
+  mpfr_mul_d(k4.w1, dydxt.w1, h, MPFR_RNDN);        // k4.w1 = h*dydxt.w1;
   // yout->w1 = yin->w1 + (k1.w1 + k4.w1)/6.0 + (k2.w1 + k3.w1)/3.0
   mpfr_set(yout->w1, yin->w1, MPFR_RNDN);
   mpfr_add(aux, k1.w1, k4.w1, MPFR_RNDN);
@@ -208,7 +208,7 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout, mpfr_t h)
   mpfr_add(yout->w1, yout->w1, aux, MPFR_RNDN);
 
 
-  mpfr_mul(k4.th2, h, dydxt.th2, MPFR_RNDN);      // k4.th2 = h*dydxt.th2;
+  mpfr_mul_d(k4.th2, dydxt.th2, h, MPFR_RNDN);      // k4.th2 = h*dydxt.th2;
   // yout->th2 = yin->th2 + (k1.th2 + k4.th2)/6.0 + (k2.th2 + k3.th2)/3.0
   mpfr_set(yout->th2, yin->th2, MPFR_RNDN);
   mpfr_add(aux, k1.th2, k4.th2, MPFR_RNDN);
@@ -219,7 +219,7 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout, mpfr_t h)
   mpfr_add(yout->th2, yout->th2, aux, MPFR_RNDN);
 
 
-  mpfr_mul(k4.w2, h, dydxt.w2, MPFR_RNDN);        // k4.w2 = h*dydxt.w2;
+  mpfr_mul_d(k4.w2, dydxt.w2, h, MPFR_RNDN);        // k4.w2 = h*dydxt.w2;
   // yout->w2 = yin->w2 + (k1.w2 + k4.w2)/6.0 + (k2.w2 + k3.w2)/3.0
   mpfr_set(yout->w2, yin->w2, MPFR_RNDN);
   mpfr_add(aux, k1.w2, k4.w2, MPFR_RNDN);
@@ -275,6 +275,9 @@ void dot_product(y_t *y1, y_t *y2, mpfr_t *dot) {
   mpfr_add(*dot, *dot, aux, MPFR_RNDN);
   mpfr_mul(aux, y1->w2, y2->w2, MPFR_RNDN);
   mpfr_add(*dot, *dot, aux, MPFR_RNDN);
+
+  magnitude(y2, &aux);
+  mpfr_div(*dot, *dot, aux);
 }
 
 

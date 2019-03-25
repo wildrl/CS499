@@ -12,8 +12,9 @@ void output_energy(FILE *file, int nbits, mpfr_t* t, mpfr_t* th1, mpfr_t* w1, mp
 void output_polar(mpfr_t* t, y_t* y);
 void output_cartesian(mpfr_t* t, y_t* y);
 void output_energy(mpfr_t* t, y_t* y);
-void output_mag(mpfr_t* t, mpfr_t *mag, mpfr_t *dot);
+void output_mag(mpfr_t* t, mpfr_t *mag, mpfr_t *dot, mpfr_t *r_error);
 
 void create_out_files(int num);
 void create_output_directory();
 void output_initial_conditions(char* argv[]);
+

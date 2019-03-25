@@ -46,8 +46,7 @@ int main(int argc, char *argv[])
   /* Preform Runga Kutta method to solve the dpend system for each mantissa size. */
   for (int j = 0; j < 5; j++) {
     mpfr_t t_curr, t_next;
-    mpfr_t mag;
-    mpfr_t dot;
+    mpfr_t mag, dot, r_error;
     y_t yin, yout;
 
     nbits = mantissa_sz[j];
@@ -61,7 +60,7 @@ int main(int argc, char *argv[])
     mpfr_const_pi(radian_conv, MPFR_RNDN);
     mpfr_div_ui(radian_conv, radian_conv, 180, MPFR_RNDN);
 
-
+    mpfr_inits2(113, mag, dot, r_error, NULL);
 
     mpfr_inits2(nbits, mag, dot, yin.th1, yin.w1, yin.th2, yin.w2, 
       yout.th1, yout.w1, yout.th2, yout.w2, NULL);
@@ -83,7 +82,8 @@ int main(int argc, char *argv[])
     magnitude(&yin, &mag);
     if (nbits != 113) {
       dot_product(&yin, y_actual[0], &dot);
-      output_mag(&t_curr, &mag, &dot);
+      r_error(y_actual[i], &yout, &r_error);
+      output_mag(&t_curr, &mag, &dot, &r_error);
     } else {
       y_actual[0] = &yin;
       output_mag(&t_curr, &mag, NULL);
@@ -102,8 +102,6 @@ int main(int argc, char *argv[])
       mpfr_add_d(t_next, t_curr, h, MPFR_RNDN);		// update time
       runge_kutta(t_curr, &yin, &yout);      // preform runge kutta 
       
-
-//printf("Onderflow %f on i = %d\n", MPFR_FLAGS_UNDERFLOW, i);
       /* Print output to files. */
       output_polar(&t_next, &yout);
       output_cartesian(&t_next, &yout);
@@ -120,11 +118,13 @@ int main(int argc, char *argv[])
       if (nbits == 113) { y_actual[i] = &yin; }
 
       magnitude(&yout, &mag);
+
       if (nbits != 113) { 
         dot_product(&yout, y_actual[i], &dot);
-        output_mag(&t_curr, &mag, &dot);
+        r_error(y_actual[i], &yout, &r_error);
+        output_mag(&t_curr, &mag, &dot, &r_error);
       } else {
-        output_mag(&t_curr, &mag, NULL);
+        output_mag(&t_curr, &mag, NULL, NULL);
       }
     }
 

@@ -1,6 +1,6 @@
 #IC2
 mag_plot(ic2_mag11$magnitude, ic2_mag24$magnitude, ic2_mag53$magnitude, ic2_mag64$magnitude, ic2_mag113$magnitude, 
-        "ic2 magnitudes", nrow(ic2_mag11), max(ic2_mag113$magnitude))
+        "v0 - L2 norms", 40000, 100)#max(ic2_mag113$magnitude))
 dot_plot(ic2_mag11$dot_product, ic2_mag24$dot_product, ic2_mag53$dot_product, ic2_mag64$dot_product, 
        "ic2 dot product with 113-bit soln", nrow(ic2_mag11), max(ic2_mag64$dot_product))
 
@@ -12,14 +12,38 @@ dot_plot(ic3_mag11$dot_product, ic3_mag24$dot_product, ic3_mag53$dot_product, ic
 
 #IC6
 mag_plot(ic6_mag11$magnitude, ic6_mag24$magnitude, ic6_mag53$magnitude, ic6_mag64$magnitude, ic6_mag113$magnitude, 
-         "ic6=(180,0,91,0): magnitude", nrow(ic6_mag11), max(ic6_mag24$magnitude))
+         "ic6=(180,0,91,0): magnitude", 400000, max(ic6_mag24$magnitude))
 dot_plot(ic6_mag11$dot_product, ic6_mag24$dot_product, ic6_mag53$dot_product, ic6_mag64$dot_product, 
          "ic6=(180,0,91,0): dot product with 113-bit soln", nrow(ic6_mag11), max(ic6_mag64$dot_product))
 
 
 
+
+fx_plot(ic3_pol11$th1, ic3_pol11$w1, ic3_pol11$th2, ic3_pol11$w2, ic2_mag11$magnitude,
+         "ic2 11 bit function values", 10000, 40)#max(ic2_mag113$magnitude))
+
+fx_plot <- function(d11,d24,d53,d64,m, title, nrows, ymax) {
+  plot(1,type='n',xlim=c(-20,nrows),ylim=c(-40,ymax),xlab='time step', ylab='L2 norm', main=title)
+  
+  lines(d11, type='l', col="red", lwd=1.5)
+  lines(d24, type='l', col="orange", lwd=1.5)
+  lines(d53, type='l', col="green", lwd=1.5)
+  lines(d64, type='l', col="blue", lwd=1.5)
+  lines(m, type='l', col="blue", lwd=1.5)
+  
+  legend("topleft", legend=c("th1", "w1", "th2", "w2", "L2"),
+         col=c("red", "orange", "green", "blue", "purple"), lty=1:1, cex=0.8)
+}
+
+
+
+
+
+
+
+
 mag_plot <- function(d11,d24,d53,d64,d113, title, nrows, ymax) {
-  plot(1,type='n',xlim=c(0,nrows),ylim=c(0,ymax),xlab='time step', ylab='magnitude', main=title)
+  plot(1,type='n',xlim=c(0,nrows),ylim=c(0,ymax),xlab='time step', ylab='L2 norm', main=title)
 
   lines(d11, type='l', col="red", lwd=1.5)
   lines(d24, type='l', col="orange", lwd=1.5)

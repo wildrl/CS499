@@ -247,7 +247,7 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout)
  */
 void magnitude (y_t *y, mpfr_t *magnitude) {
   mpfr_t aux;
-  mpfr_init2(113, nbits);
+  mpfr_init2(aux, 113);
 
   mpfr_set(*magnitude, y->th1, MPFR_RNDN);
   mpfr_sqr(*magnitude, *magnitude, MPFR_RNDN);
@@ -286,17 +286,17 @@ void dot_product(y_t *y1, y_t *y2, mpfr_t *dot) {
   mpfr_free_cache();
 }
 
-void r_error(y_t* actual, y_t* measured, mpfr_t* r_error) {
+void relative_error(y_t* actual, y_t* measured, mpfr_t* r_error) {
   mpfr_t actual_m, measured_m;
   mpfr_inits2(113, actual_m, measured_m, NULL);
 
-  magnitude(&actual, &actual_m);
-  magnitude(&measured, &measured_m);
+  magnitude(actual, &actual_m);
+  magnitude(measured, &measured_m);
 
-  mpfr_set(*r_error, *actual_m, MPFR_RNDN);
-  mpfr_sub(*r_error, *r_error, *measured_m, MPFR_RNDN);
+  mpfr_set(*r_error, actual_m, MPFR_RNDN);
+  mpfr_sub(*r_error, *r_error, measured_m, MPFR_RNDN);
   mpfr_abs(*r_error, *r_error, MPFR_RNDN);
-  mpfr_div(*r_error, *r_error, actual_m);
+  mpfr_div(*r_error, *r_error, actual_m, MPFR_RNDN);
 
   mpfr_clears(actual_m, measured_m, NULL);
   mpfr_free_cache();

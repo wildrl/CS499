@@ -16,7 +16,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
 #include <gmp.h>
 #include <mpfr.h>
 #include "dpend.h"
@@ -62,7 +61,7 @@ int main(int argc, char *argv[])
 
     mpfr_inits2(113, mag, dot, r_error, NULL);
 
-    mpfr_inits2(nbits, mag, dot, yin.th1, yin.w1, yin.th2, yin.w2, 
+    mpfr_inits2(nbits, yin.th1, yin.w1, yin.th2, yin.w2, 
       yout.th1, yout.w1, yout.th2, yout.w2, NULL);
 
     /* Create output files to hold results for calculations using nbits. */
@@ -82,11 +81,11 @@ int main(int argc, char *argv[])
     magnitude(&yin, &mag);
     if (nbits != 113) {
       dot_product(&yin, y_actual[0], &dot);
-      r_error(y_actual[i], &yout, &r_error);
+      relative_error(y_actual[0], &yout, &r_error);
       output_mag(&t_curr, &mag, &dot, &r_error);
     } else {
       y_actual[0] = &yin;
-      output_mag(&t_curr, &mag, NULL);
+      output_mag(&t_curr, &mag, NULL, NULL);
     }
 
     /* Output initial values. */
@@ -121,7 +120,7 @@ int main(int argc, char *argv[])
 
       if (nbits != 113) { 
         dot_product(&yout, y_actual[i], &dot);
-        r_error(y_actual[i], &yout, &r_error);
+        relative_error(y_actual[i], &yout, &r_error);
         output_mag(&t_curr, &mag, &dot, &r_error);
       } else {
         output_mag(&t_curr, &mag, NULL, NULL);

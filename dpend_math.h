@@ -10,4 +10,4 @@ void derivs(y_t *yin, y_t *dydx);
 
 void magnitude (y_t *y, mpfr_t *magnitude);
 void dot_product(y_t *y1, y_t *y2, mpfr_t *dot);
-void r_error(y_t* actual, y_t* measured, mpfr_t* r_error) {
+void relative_error(y_t* actual, y_t* measured, mpfr_t* r_error);

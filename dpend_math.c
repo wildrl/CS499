@@ -130,19 +130,19 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout)
   /* First step. */
   derivs(yin, &dydx);
 
-  mpfr_mul(k1.th1, h, dydx.th1, MPFR_RNDN);       // k1.th1 = h*dydx.th1
+  mpfr_mul_d(k1.th1, dydx.th1, h, MPFR_RNDN);       // k1.th1 = h*dydx.th1
   mpfr_mul_d(yt.th1, k1.th1, 0.5, MPFR_RNDN);  // yt.th1 = yin->th1 + 0.5*k1.th1
   mpfr_add(yt.th1, yt.th1, yin->th1, MPFR_RNDN);
 
-  mpfr_mul(k1.w1, h, dydx.w1, MPFR_RNDN);         // k1.w1 = h*dydx.w1
+  mpfr_mul_d(k1.w1, dydx.w1, h, MPFR_RNDN);         // k1.w1 = h*dydx.w1
   mpfr_mul_d(yt.w1, k1.w1, 0.5, MPFR_RNDN);    // yt.w1 = yin->w1 + 0.5*k1.w1
   mpfr_add(yt.w1, yt.w1, yin->w1, MPFR_RNDN);
 
-  mpfr_mul(k1.th2, h, dydx.th2, MPFR_RNDN);       // k1.th2 = h*dydx.th2
+  mpfr_mul_d(k1.th2, dydx.th2, h, MPFR_RNDN);       // k1.th2 = h*dydx.th2
   mpfr_mul_d(yt.th2, k1.th2, 0.5, MPFR_RNDN);  // yt.th2 = yin->th2 + 0.5*k1.th2
   mpfr_add(yt.th2, yt.th2, yin->th2, MPFR_RNDN);
 
-  mpfr_mul(k1.w2, h, dydx.w2, MPFR_RNDN);         // k1.w2 = h*dydx.w2
+  mpfr_mul_d(k1.w2, dydx.w2, h, MPFR_RNDN);         // k1.w2 = h*dydx.w2
   mpfr_mul_d(yt.w2, k1.w2, 0.5, MPFR_RNDN);    // yt.w2 = yin->w2 + 0.5*k1.w2
   mpfr_add(yt.w2, yt.w2, yin->w2, MPFR_RNDN);
   
@@ -277,10 +277,16 @@ void dot_product(y_t *y1, y_t *y2, mpfr_t *dot) {
   mpfr_add(*dot, *dot, aux, MPFR_RNDN);
 
   magnitude(y2, &aux);
-  mpfr_div(*dot, *dot, aux);
+  mpfr_div(*dot, *dot, aux, MPFR_RNDN);
 }
 
+void r_error(y_t* actual, y_t* measured, mpfr_t* r_error) {
+  mpfr_t actual_m, expected_m;
+  mpfr_inits2(nbits, 
 
+  mpfr_set(*r_error, *measured, MPFR_RNDN);
+  mpfr_sub(*r_error, 
+}
 
 
 

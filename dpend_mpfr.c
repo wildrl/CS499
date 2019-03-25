@@ -12,9 +12,11 @@
  *
  */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+
 #include <gmp.h>
 #include <mpfr.h>
 #include "dpend.h"
@@ -29,7 +31,7 @@ int main(int argc, char *argv[])
   int NSTEP = atoi(argv[5]);
   int mantissa_sz[5] = {113,11,24,53,64};
  // int eps[5] = {0, 2^(-11), 2^(-24), 2^(-53), 2^(-64)};
-  
+  h = atof(argv[6]);  
   create_output_directory();
   output_initial_conditions(argv);
 
@@ -98,8 +100,10 @@ int main(int argc, char *argv[])
     for (int i = 1; i < NSTEP; i++) {
 
       mpfr_add_d(t_next, t_curr, h, MPFR_RNDN);		// update time
-      runge_kutta(t_curr, &yin, &yout, h);      // preform runge kutta 
+      runge_kutta(t_curr, &yin, &yout);      // preform runge kutta 
+      
 
+//printf("Onderflow %f on i = %d\n", MPFR_FLAGS_UNDERFLOW, i);
       /* Print output to files. */
       output_polar(&t_next, &yout);
       output_cartesian(&t_next, &yout);

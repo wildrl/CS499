@@ -11,7 +11,7 @@
 #define M2 1.0 /* mass of pendulum 2 (kg) */
 
 int nbits;  /* number of bits to use for mantissa */
-double h = 0.0001;  /* step size */
+double h;  /* step size */
 
 typedef struct {
   mpfr_t th1;     /* angle of pend 1 */

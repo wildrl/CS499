@@ -14,8 +14,8 @@
 
 void output_initial_conditions(char* argv[]) {
   all_ics = fopen("./mpfr_data/all_ics.txt", "a");
-  fprintf(all_ics, "ic_%d,%s,%s,%s,%s,%s\n", 
-          dir_count, argv[1], argv[2], argv[3], argv[4], argv[5]);
+  fprintf(all_ics, "ic_%d,%s,%s,%s,%s,%s,%f\n", 
+          dir_count, argv[1], argv[2], argv[3], argv[4], argv[5], h);
   fclose(all_ics);
 }
 

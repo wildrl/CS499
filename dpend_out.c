@@ -54,7 +54,7 @@ void create_out_files(int num) {
     /* Create output file for magnitude. */
     snprintf(mag_fn, 50, "%s/mag%d.csv", dir_name, num);
     mag_output = fopen(mag_fn, "w");
-    fprintf(mag_output, "time,magnitude,dot_product\n");
+    fprintf(mag_output, "time,magnitude,dot_product,r_error\n");
 
     /* Create output file for energy values. */
     //snprintf(energy_fn, 50, "%s/energy%d.csv", dir_name, num);
@@ -68,7 +68,7 @@ void output_mag(mpfr_t* t, mpfr_t *mag, mpfr_t *dot, mpfr_t *r_error) {
     mpfr_fprintf(mag_output, "%0.32RNF,%0.32RNF,%0.32RNF,%0.32RNF\n", 
               *t, mag, dot, r_error);
   } else {
-    mpfr_fprintf(mag_output, "%0.32RNF,%0.32RNF,0\n", 
+    mpfr_fprintf(mag_output, "%0.32RNF,%0.32RNF,NA,NA\n", 
               *t, mag);
   }
 

@@ -1,49 +1,36 @@
-#IC2
-mag_plot(ic2_mag11$magnitude, ic2_mag24$magnitude, ic2_mag53$magnitude, ic2_mag64$magnitude, ic2_mag113$magnitude, 
-        "v0 - L2 norms", 40000, 100)#max(ic2_mag113$magnitude))
-dot_plot(ic2_mag11$dot_product, ic2_mag24$dot_product, ic2_mag53$dot_product, ic2_mag64$dot_product, 
-       "ic2 dot product with 113-bit soln", nrow(ic2_mag11), max(ic2_mag64$dot_product))
-
-#IC3
-mag_plot(ic3_mag11$magnitude, ic3_mag24$magnitude, ic3_mag53$magnitude, ic3_mag64$magnitude, ic3_mag113$magnitude, 
-         "ic3=(180,0,90,0): magnitude", nrow(ic3_mag11), max(ic3_mag64$magnitude))
-dot_plot(ic3_mag11$dot_product, ic3_mag24$dot_product, ic3_mag53$dot_product, ic3_mag64$dot_product, 
-         "ic3=(180,0,90,0): dot product with 113-bit soln", nrow(ic3_mag11), max(ic3_mag64$dot_product))
-
-#IC6
-mag_plot(ic6_mag11$magnitude, ic6_mag24$magnitude, ic6_mag53$magnitude, ic6_mag64$magnitude, ic6_mag113$magnitude, 
-         "ic6=(180,0,91,0): magnitude", 400000, max(ic6_mag24$magnitude))
-dot_plot(ic6_mag11$dot_product, ic6_mag24$dot_product, ic6_mag53$dot_product, ic6_mag64$dot_product, 
-         "ic6=(180,0,91,0): dot product with 113-bit soln", nrow(ic6_mag11), max(ic6_mag64$dot_product))
-
-
-
-
-fx_plot(ic3_pol11$th1, ic3_pol11$w1, ic3_pol11$th2, ic3_pol11$w2, ic2_mag11$magnitude,
-         "ic2 11 bit function values", 10000, 40)#max(ic2_mag113$magnitude))
-
-fx_plot <- function(d11,d24,d53,d64,m, title, nrows, ymax) {
-  plot(1,type='n',xlim=c(-20,nrows),ylim=c(-40,ymax),xlab='time step', ylab='L2 norm', main=title)
+# plot parameters and magnitude
+fx_plot <- function(d11,d24,d53,d64,m, title, xmax, ymax) {
+  plot(1,type='n', xlim=c(-20,xmax), ylim=c(-40,ymax),
+       xlab='time step', ylab='L2 norm', main=title)
   
   lines(d11, type='l', col="red", lwd=1.5)
   lines(d24, type='l', col="orange", lwd=1.5)
   lines(d53, type='l', col="green", lwd=1.5)
   lines(d64, type='l', col="blue", lwd=1.5)
-  lines(m, type='l', col="blue", lwd=1.5)
+  lines(m, type='l', col="purple", lwd=1.5)
   
   legend("topleft", legend=c("th1", "w1", "th2", "w2", "L2"),
          col=c("red", "orange", "green", "blue", "purple"), lty=1:1, cex=0.8)
 }
 
+#Plot relative error
+r_error_plot <- function(d11, d24, d53, d64, title, xmax, ymax) {
+  plot(1,type='n', xlim=c(0,xmax), ylim=c(0,ymax), 
+       xlab='time step', ylab='relative error', main=title)
+  
+  lines(d11, type='l', col="red", lwd=1.5)
+  lines(d24, type='l', col="orange", lwd=1.5)
+  lines(d53, type='l', col="green", lwd=1.5)
+  lines(d64, type='l', col="blue", lwd=1.5)
+  
+  legend("topleft", legend=c("11", "24", "53", "64"),
+         col=c("red", "orange", "green", "blue"), lty=1:1, cex=0.8)
+}
 
-
-
-
-
-
-
-mag_plot <- function(d11,d24,d53,d64,d113, title, nrows, ymax) {
-  plot(1,type='n',xlim=c(0,nrows),ylim=c(0,ymax),xlab='time step', ylab='L2 norm', main=title)
+# Plot L2 Norms
+mag_plot <- function(d11, d24, d53, d64, d113, title, xmax, ymax) {
+  plot(1,type='n', xlim=c(0,xmax), ylim=c(0,ymax),
+       xlab='time step', ylab='L2 norm', main=title)
 
   lines(d11, type='l', col="red", lwd=1.5)
   lines(d24, type='l', col="orange", lwd=1.5)
@@ -55,9 +42,10 @@ mag_plot <- function(d11,d24,d53,d64,d113, title, nrows, ymax) {
          col=c("red", "orange", "green", "blue", "purple"), lty=1:1, cex=0.8)
 }
 
-dot_plot <- function(d11,d24,d53,d64, title, nrows, ymax, xmax) {
-  plot(1,type='n',xlim=c(0,nrows),ylim=c(0,ymax),xlab='time step', ylab='dot product', main=title)
-  
+# Plot dot product
+dot_plot <- function(d11, d24, d53, d64, title, xmax, ymax, xmax) {
+  plot(1,type='n', xlim=c(0,xmax), ylim=c(0,ymax),
+       xlab='time step', ylab='dot product', main=title)
   
   lines(d11, type='l', col="red", lwd=1.5)
   lines(d24, type='l', col="orange", lwd=1.5)
@@ -68,17 +56,40 @@ dot_plot <- function(d11,d24,d53,d64, title, nrows, ymax, xmax) {
          col=c("red", "orange", "green", "blue"), lty=1:1, cex=0.8)
 }
 
-mag_plot113(ic6_mag113$magnitude, ic3_mag113$magnitude,
-            "ic6 & ic3 113-bit soln magnitude", nrow(ic6_mag113),100)
 
-mag_plot113 <- function(d1,d2, title, nrows, ymax) {
-  plot(1,type='n',xlim=c(0,nrows),ylim=c(0,ymax),xlab='time step', ylab='magnitude', main=title)
+
+# misc
+
+mag_plot113 <- function(fn, fp_th1, fp_w1, fp_th2, fp_w2, title, nrows, ymax, a, b, c, d, e) {
   
-  lines(d1, type='l', col="red", lwd=1.5)
-  lines(d2, type='l', col="orange", lwd=1.5)
+  format(fn,scientific=FALSE)
+  plot(1,type='n', xlim=c(0,nrows), ylim=c(0,ymax), 
+       xlab='time step', ylab='L2-norm', main=title)
   
-  legend("topleft", legend=c("113 ic6", "113 ic3"),
-         col=c("red", "orange"), lty=1:1, cex=0.8)
+  lines(fn, type='l', col="red", lwd=1.5)
+  lines(fp_th1, type='l', col="orange", lwd=1.5)
+  lines(fp_w1, type='l', col="green", lwd=1.5)
+  lines(fp_th2, type='l', col="blue", lwd=1.5)
+  lines(fp_w2, type='l', col="purple", lwd=1.5)
+  
+  legend("topleft", legend=c(a, b, c, d, e),
+         col=c("red", "orange", "green", "blue", "purple"), lty=1:1, cex=0.8)
+}
+
+r_error <- function(fn, fp_th1, fp_w1, fp_th2, fp_w2, title, xmax, ymax, a, b, c, d) {
+  
+  format(fn,scientific=FALSE)
+  plot(1,type='n', xlim=c(0,xmax), ylim=c(0,ymax), 
+       xlab='time step', ylab='relative error', main=title)
+  
+  lines(fn, type='l', col="red", lwd=1.5)
+  lines(fp_th1, type='l', col="orange", lwd=1.5)
+  lines(fp_w1, type='l', col="green", lwd=1.5)
+  lines(fp_th2, type='l', col="blue", lwd=1.5)
+  lines(fp_w2, type='l', col="purple", lwd=1.5)
+  
+  legend("topleft", legend=c(a, b, c, d,e),
+         col=c("red", "orange", "green", "blue", "purple"), lty=1:1, cex=0.8)
 }
 
 

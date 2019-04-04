@@ -66,10 +66,10 @@ void output_mag(mpfr_t* t, mpfr_t *mag, mpfr_t *dot, mpfr_t *r_error) {
 
   if (nbits != 113) {
     mpfr_fprintf(mag_output, "%0.32RNF,%0.32RNF,%0.32RNF,%0.32RNF\n", 
-              *t, mag, dot, r_error);
+              *t, *mag, *dot, *r_error);
   } else {
     mpfr_fprintf(mag_output, "%0.32RNF,%0.32RNF,NA,NA\n", 
-              *t, mag);
+              *t, *mag);
   }
 
 }

@@ -1,5 +1,6 @@
 #include "dpend.h"
-
+#include <stdio.h>
+#include <stdlib.h>
 /* 
  * Calculates the derivitive of each component in yin.
  * Result is stored in dydx.
@@ -92,7 +93,9 @@ void derivs(y_t *yin, y_t *dydx) {
 
   mpfr_div(dydx->w2, num2, den2, MPFR_RNDN);  // w2' = num2/den2 
 
-
+//printf("%d",nbits);
+if(nbits==11) 
+{mpfr_printf("num %0.32RNf\n ", dydx->th1);}
   /*  Clean up. */
   mpfr_clears(num1, num2, den1, den2, aux, mass_sum, del, cos_del, sin_del, 
               sin_cos_del, sin_th1, sin_th2, w1_sqr, w2_sqr, NULL);
@@ -108,13 +111,13 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout)
  
   y_t dydx, dydxt, yt, k1, k2, k3, k4;
   mpfr_t aux;
-  mpfr_t THREE, SIX, ONE_HALF;
+ // mpfr_t THREE, SIX, ONE_HALF;
 
-  mpfr_inits2(nbits, THREE, SIX, ONE_HALF, NULL);
-  mpfr_set_d(THREE, 3.0, MPFR_RNDN);
-  mpfr_set_d(SIX, 6.0, MPFR_RNDN);
-  mpfr_set_d(ONE_HALF, 0.5, MPFR_RNDN);
-  
+ // mpfr_inits2(nbits, THREE, SIX, ONE_HALF, NULL);
+ // mpfr_set_d(THREE, 3.0, MPFR_RNDN);
+ // mpfr_set_d(SIX, 6.0, MPFR_RNDN);
+ // mpfr_set_d(ONE_HALF, 0.5, MPFR_RNDN);
+ // printf("nan1: %d", mpfr_nanflag_p());
   // INIT y_t struct contents
   mpfr_inits2(nbits, dydx.th1, dydx.w1, dydx.th2, dydx.w2, NULL);
   mpfr_inits2(nbits, dydxt.th1, dydxt.w1, dydxt.th2, dydxt.w2, NULL);
@@ -126,7 +129,13 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout)
 
   // INIT temps
   mpfr_init2(aux, nbits);
-  
+if(nbits==11)
+{
+// int err = mpfr_printf("%0.32RN      ", dydx.th1);  
+ printf("underflow:  %d   overflow: %d   div0: %d   nanflag: %d   inexflag: %d   erangeflag: %d\n",
+	mpfr_underflow_p(), mpfr_overflow_p(), mpfr_divby0_p(), mpfr_nanflag_p(), mpfr_inexflag_p(), mpfr_erangeflag_p());
+
+}
   /* First step. */
   derivs(yin, &dydx);
 
@@ -238,7 +247,7 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout)
               k2.th1, k2.w1, k2.th2, k2.w2,
               k3.th1, k3.w1, k3.th2, k3.w2, 
               k4.th1, k4.w1, k4.th2, k4.w2, 
-              aux, THREE, SIX, ONE_HALF, NULL);
+              aux, NULL);
   mpfr_free_cache();
 }
 

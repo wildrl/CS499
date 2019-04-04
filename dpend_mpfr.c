@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
 
   
 
-  y_t ** y_actual;
-  y_actual = malloc(NSTEP*sizeof(y_t*));
+  y_t * y_actual;
+  y_actual = malloc(NSTEP*sizeof(y_t));
 
 
 //  mpfr_t radian_conv;
@@ -53,16 +53,19 @@ int main(int argc, char *argv[])
     /* Create constant for converting angles to radians. */
 
     //mpfr_init2(h, 113);
-   // mpfr_set_d(h, 0.001, MPFR_RNDN);
+    // mpfr_set_d(h, 0.001, MPFR_RNDN);
     mpfr_t radian_conv;
     mpfr_init2(radian_conv, nbits);
-    mpfr_const_pi(radian_conv, MPFR_RNDN);
+    //mpfr_const_pi(radian_conv, MPFR_RNDN);
+    mpfr_set_d(radian_conv, 3.14159, MPFR_RNDN);  
     mpfr_div_ui(radian_conv, radian_conv, 180, MPFR_RNDN);
-
     mpfr_inits2(113, mag, dot, r_error, NULL);
 
     mpfr_inits2(nbits, yin.th1, yin.w1, yin.th2, yin.w2, 
       yout.th1, yout.w1, yout.th2, yout.w2, NULL);
+
+ printf("underflow:  %d   overflow: %d   div0: %d   nanflag: %d   inexflag: %d   erangeflag: %d\n",
+        mpfr_underflow_p(), mpfr_overflow_p(), mpfr_divby0_p(), mpfr_nanflag_p(), mpfr_inexflag_p(), mpfr_erangeflag_p());
 
     /* Create output files to hold results for calculations using nbits. */
     create_out_files(mantissa_sz[j]);
@@ -77,14 +80,18 @@ int main(int argc, char *argv[])
     mpfr_mul_d(yin.w1, radian_conv, atof(argv[2]) , MPFR_RNDN);    // w1[0] = W1*PI/180.0
     mpfr_mul_d(yin.th2, radian_conv, atof(argv[3]), MPFR_RNDN);  // th2[0] = TH2*PI/180.0
     mpfr_mul_d(yin.w2, radian_conv, atof(argv[4]) , MPFR_RNDN);    // w2[0] = W2*PI/180.0
+printf("underflow:  %d   overflow: %d   div0: %d   nanflag: %d   inexflag: %d   erangeflag: %d\n",
+        mpfr_underflow_p(), mpfr_overflow_p(), mpfr_divby0_p(), mpfr_nanflag_p(), mpfr_inexflag_p(), mpfr_erangeflag_p());
 
     magnitude(&yin, &mag);
     if (nbits != 113) {
-      dot_product(&yin, y_actual[0], &dot);
-      relative_error(y_actual[0], &yout, &r_error);
+      dot_product(&yin, &y_actual[0], &dot);
+if(nbits==11) printf("nanflag_a: %d\n", mpfr_nanflag_p());      
+relative_error(&y_actual[0], &yout, &r_error);
+if(nbits==11) printf("nanflag_b: %d\n", mpfr_nanflag_p());
       output_mag(&t_curr, &mag, &dot, &r_error);
     } else {
-      y_actual[0] = &yin;
+      y_actual[0] = yin;
       output_mag(&t_curr, &mag, NULL, NULL);
     }
 
@@ -97,7 +104,6 @@ int main(int argc, char *argv[])
     printf("Computing %d-bit result... ", nbits); fflush(stdout);
     /* Perform the integration. */
     for (int i = 1; i < NSTEP; i++) {
-
       mpfr_add_d(t_next, t_curr, h, MPFR_RNDN);		// update time
       runge_kutta(t_curr, &yin, &yout);      // preform runge kutta 
       
@@ -114,19 +120,20 @@ int main(int argc, char *argv[])
       mpfr_set(yin.w2, yout.w2, MPFR_RNDN);
       mpfr_set(t_curr, t_next, MPFR_RNDN);
 
-      if (nbits == 113) { y_actual[i] = &yin; }
+      if (nbits == 113) { y_actual[i] = yin; }
 
       magnitude(&yout, &mag);
 
       if (nbits != 113) { 
-        dot_product(&yout, y_actual[i], &dot);
-        relative_error(y_actual[i], &yout, &r_error);
+        dot_product(&yout, &y_actual[i], &dot);
+        relative_error(&y_actual[i], &yout, &r_error);
         output_mag(&t_curr, &mag, &dot, &r_error);
       } else {
         output_mag(&t_curr, &mag, NULL, NULL);
       }
-    }
 
+    }
+//mpfr_clear_flags();
     printf("Done.\n");
 
 

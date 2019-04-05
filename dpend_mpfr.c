@@ -24,13 +24,14 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <math.h>
 
 int main(int argc, char *argv[])
 {
   int NSTEP = atoi(argv[5]);
   int mantissa_sz[5] = {113,11,24,53,64};
  // int eps[5] = {0, 2^(-11), 2^(-24), 2^(-53), 2^(-64)};
-  h = 2^(-16);  
+  h = pow(2,-16);  
   create_output_directory();
   output_initial_conditions(argv);
 
@@ -40,7 +41,7 @@ int main(int argc, char *argv[])
   y_actual = malloc(NSTEP*sizeof(y_t));
 
 
-//  mpfr_t radian_conv;
+  //mpfr_t radian_conv;
 
   /* Preform Runga Kutta method to solve the dpend system for each mantissa size. */
   for (int j = 0; j < 5; j++) {

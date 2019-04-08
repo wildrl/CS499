@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
   int NSTEP = atoi(argv[5]);
   int mantissa_sz[5] = {113,11,24,53,64};
  // int eps[5] = {0, 2^(-11), 2^(-24), 2^(-53), 2^(-64)};
-  h = pow(2,-16);  
+  h = pow( atoi(argv[6]), atoi(argv[7]) );  
   create_output_directory();
   output_initial_conditions(argv);
 
@@ -66,8 +66,8 @@ int main(int argc, char *argv[])
 
     mpfr_inits2(nbits, yin.th1, yin.w1, yin.th2, yin.w2, yout.th1, yout.w1, yout.th2, yout.w2, NULL);
 
-    printf("\nA: underflow:  %d   overflow: %d   div0: %d   nanflag: %d   inexflag: %d   erangeflag: %d\n",
-        mpfr_underflow_p(), mpfr_overflow_p(), mpfr_divby0_p(), mpfr_nanflag_p(), mpfr_inexflag_p(), mpfr_erangeflag_p());
+   // printf("\nA: underflow:  %d   overflow: %d   div0: %d   nanflag: %d   inexflag: %d   erangeflag: %d\n",
+      //  mpfr_underflow_p(), mpfr_overflow_p(), mpfr_divby0_p(), mpfr_nanflag_p(), mpfr_inexflag_p(), mpfr_erangeflag_p());
 
     /* Create output files to hold results for calculations using nbits. */
     create_out_files(mantissa_sz[j]);
@@ -83,13 +83,13 @@ int main(int argc, char *argv[])
     mpfr_mul_d(yin.th2, radian_conv, atof(argv[3]), MPFR_RNDN);  // th2[0] = TH2*PI/180.0
     mpfr_mul_d(yin.w2, radian_conv, atof(argv[4]) , MPFR_RNDN);    // w2[0] = W2*PI/180.0
 
-    printf("B: underflow:  %d   overflow: %d   div0: %d   nanflag: %d   inexflag: %d   erangeflag: %d\n",
-        mpfr_underflow_p(), mpfr_overflow_p(), mpfr_divby0_p(), mpfr_nanflag_p(), mpfr_inexflag_p(), mpfr_erangeflag_p());
+   // printf("B: underflow:  %d   overflow: %d   div0: %d   nanflag: %d   inexflag: %d   erangeflag: %d\n",
+     //   mpfr_underflow_p(), mpfr_overflow_p(), mpfr_divby0_p(), mpfr_nanflag_p(), mpfr_inexflag_p(), mpfr_erangeflag_p());
 
     magnitude(&yin, &mag);
     if (nbits != 113) {
       dot_product(&yin, &y_actual[0], &dot);
-      relative_error(&y_actual[0], &yout, &r_error);
+     // relative_error(&y_actual[0], &yout, &r_error);
       output_mag(&t_curr, &mag, &dot, &r_error);
     } else {
       y_actual[0] = yin;
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
       
       /* Print output to files. */
       output_polar(&t_next, &yout);
-      output_cartesian(&t_next, &yout);
+     // output_cartesian(&t_next, &yout);
 
       //output_energy(&t_next, &yout);
 

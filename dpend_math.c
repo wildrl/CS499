@@ -94,8 +94,8 @@ void derivs(y_t *yin, y_t *dydx) {
   mpfr_div(dydx->w2, num2, den2, MPFR_RNDN);  // w2' = num2/den2 
 
 //printf("%d",nbits);
-if(nbits==11) 
-{mpfr_printf("num %0.32RNf\n ", dydx->th1);}
+//if(nbits==11) 
+//{mpfr_printf("num %0.32RNf\n ", dydx->th1);}
   /*  Clean up. */
   mpfr_clears(num1, num2, den1, den2, aux, mass_sum, del, cos_del, sin_del, 
               sin_cos_del, sin_th1, sin_th2, w1_sqr, w2_sqr, NULL);
@@ -132,8 +132,8 @@ void runge_kutta(mpfr_t t, y_t *yin, y_t *yout)
 if(nbits==11)
 {
 // int err = mpfr_printf("%0.32RN      ", dydx.th1);  
- printf("underflow:  %d   overflow: %d   div0: %d   nanflag: %d   inexflag: %d   erangeflag: %d\n",
-	mpfr_underflow_p(), mpfr_overflow_p(), mpfr_divby0_p(), mpfr_nanflag_p(), mpfr_inexflag_p(), mpfr_erangeflag_p());
+// printf("underflow:  %d   overflow: %d   div0: %d   nanflag: %d   inexflag: %d   erangeflag: %d\n",
+//	mpfr_underflow_p(), mpfr_overflow_p(), mpfr_divby0_p(), mpfr_nanflag_p(), mpfr_inexflag_p(), mpfr_erangeflag_p());
 
 }
   /* First step. */
@@ -203,8 +203,12 @@ if(nbits==11)
   mpfr_add(yout->th1, yout->th1, aux, MPFR_RNDN);
   mpfr_add(aux, k2.th1, k3.th1, MPFR_RNDN);
   mpfr_div_d(aux, aux, 3.0, MPFR_RNDN);
-  mpfr_add(yout->th1, yout->th1, aux, MPFR_RNDN);
+//if(nbits==11) { mpfr_dump(yout->th1); mpfr_printf("th1: %0.32RNF\n", yout->th1); }
+//if(nbits==11) { printf("B: underflow:  %d   overflow: %d   div0: %d   nanflag: %d   inexflag: %d   erangeflag: %d\n",
+  //      mpfr_underflow_p(), mpfr_overflow_p(), mpfr_divby0_p(), mpfr_nanflag_p(), mpfr_inexflag_p(), mpfr_erangeflag_p()); }
 
+
+//if(nbits==11) { mpfr_dump(yout->th1); mpfr_dump(aux);  mpfr_printf("aux: %0.32RNF th1: %0.32RNF\n", aux, yout->th1); }
 
   mpfr_mul_d(k4.w1, dydxt.w1, h, MPFR_RNDN);        // k4.w1 = h*dydxt.w1;
   // yout->w1 = yin->w1 + (k1.w1 + k4.w1)/6.0 + (k2.w1 + k3.w1)/3.0
